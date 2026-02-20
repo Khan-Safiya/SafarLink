@@ -1,0 +1,127 @@
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Clock, Navigation, Leaf, ShieldCheck, MapPin } from "lucide-react";
+import JourneyTimeline from "../components/JourneyTimeline";
+import Navbar from "../components/Navbar";
+import { useState } from "react";
+
+export default function RouteDetails() {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const [isWomenOnly, setIsWomenOnly] = useState(false);
+    const [isDriverMode, setIsDriverMode] = useState(false);
+
+    // Expecting route state to be passed from Dashboard navigation
+    const route = location.state?.route;
+    const originStr = location.state?.originStr;
+    const destStr = location.state?.destStr;
+    const originCoords = location.state?.originCoords;
+    const destCoords = location.state?.destCoords;
+
+    if (!route) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+                <p className="text-gray-500 mb-4">No route data provided.</p>
+                <Button onClick={() => navigate('/dashboard')} variant="outline">
+                    Return to Dashboard
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`relative min-h-screen font-sans transition-colors duration-500 flex flex-col overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F4FDF7] dark:bg-background'}`}>
+            <Navbar
+                isWomenOnly={isWomenOnly}
+                setIsWomenOnly={setIsWomenOnly}
+                isDriverMode={isDriverMode}
+                setIsDriverMode={setIsDriverMode}
+            />
+
+            <main className="flex-grow p-4 md:p-8 max-w-3xl mx-auto w-full space-y-8 z-10 relative mt-4">
+                {/* Top Nav */}
+                <button
+                    onClick={() => navigate(-1)}
+                    className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Routing
+                </button>
+
+                {/* Header Summary Card */}
+                <Card className="border-0 shadow-lg bg-white dark:bg-card overflow-hidden">
+                    <div className={`p-6 bg-gradient-to-br ${route.type === 'fastest' ? 'from-blue-500/10 to-transparent' :
+                        route.type === 'cheapest' ? 'from-emerald-500/10 to-transparent' :
+                            'from-amber-500/10 to-transparent'
+                        }`}>
+                        <div className="flex justify-between items-start mb-6">
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                    Journey Plan
+                                </h1>
+                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <MapPin className="w-4 h-4" /> {originStr || 'Current Location'}
+                                    <ArrowLeft className="w-4 h-4 rotate-180 mx-1" />
+                                    <MapPin className="w-4 h-4" /> {destStr || 'Destination'}
+                                </div>
+                            </div>
+                            <Badge variant="outline" className={`capitalize px-3 py-1 ${route.type === 'fastest' ? 'border-blue-200 text-blue-700 bg-blue-50' :
+                                route.type === 'cheapest' ? 'border-emerald-200 text-emerald-700 bg-emerald-50' :
+                                    'border-amber-200 text-amber-700 bg-amber-50'
+                                }`}>
+                                {route.type}
+                            </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Clock className="w-3 h-3" /> Duration</p>
+                                <p className="font-bold text-lg text-gray-900 dark:text-white">{route.duration}</p>
+                            </div>
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><span className="text-emerald-500 font-bold">₹</span> Cost</p>
+                                <p className="font-bold text-lg text-emerald-600 dark:text-emerald-400">₹{route.price}</p>
+                            </div>
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Leaf className="w-3 h-3 text-green-500" /> CO2</p>
+                                <p className="font-bold text-lg text-gray-900 dark:text-white">{route.co2}g</p>
+                            </div>
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-blue-500" /> Safety</p>
+                                <p className="font-bold text-lg text-gray-900 dark:text-white">{route.safetyScore}%</p>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Journey Timeline Breakdown */}
+                <div className="px-2">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Detailed Segments</h2>
+                    <JourneyTimeline steps={route.steps || []} />
+                </div>
+
+                {/* Bottom Spacer for fixed Action Footer */}
+                <div className="h-24"></div>
+            </main>
+
+            {/* Fixed Action Footer */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-white/10 z-50">
+                <div className="max-w-3xl mx-auto flex gap-4 items-center">
+                    <div className="hidden sm:block flex-grow">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">Ready to depart?</p>
+                        <p className="text-xs text-gray-500">Live safety tracking will activate automatically.</p>
+                    </div>
+                    <Button
+                        onClick={() => navigate('/tracking', { state: { route, origin: originCoords, destination: destCoords } })}
+                        className="w-full sm:w-auto px-8 bg-[#2FCE65] hover:bg-[#25A952] text-white flex gap-2 shadow-lg shadow-[#2FCE65]/20 h-12 text-lg font-bold"
+                    >
+                        <Navigation className="w-5 h-5" />
+                        Start Journey
+                    </Button>
+                </div>
+            </div>
+        </div>
+    );
+}

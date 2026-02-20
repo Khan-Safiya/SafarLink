@@ -1,10 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, ChevronUp } from "lucide-react";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2 } from "lucide-react";
 import KPIMetricsGrid from "./KPIMetricsGrid";
-import JourneyTimeline from "./JourneyTimeline";
+import { useNavigate } from "react-router-dom";
 
 export interface RouteOption {
     id: string;
@@ -17,30 +15,36 @@ export interface RouteOption {
     safetyScore: number; // 0-100
     tags: string[];
     steps?: any[]; // For timeline
+    segments?: any[];
 }
 
 interface RouteCardProps {
     route: RouteOption;
     selected: boolean;
     onSelect: (route: RouteOption) => void;
+    originStr: string;
+    destStr: string;
+    originCoords: string;
+    destCoords: string;
 }
 
-export default function RouteCard({ route, selected, onSelect }: RouteCardProps) {
-    const [expanded, setExpanded] = useState(false);
-
-    // Mock steps if not provided
-    const steps = route.steps || [
-        { type: 'walk', duration: '5 mins', description: 'Walk from current location' },
-        { type: 'metro', duration: '15 mins', description: 'Purple Line: Civil Court to Vanaz' },
-        { type: 'auto', duration: '8 mins', description: 'Shared Auto to Destination' }
-    ];
+export default function RouteCard({ route, selected, onSelect, originStr, destStr, originCoords, destCoords }: RouteCardProps) {
+    const navigate = useNavigate();
 
     return (
         <Card
             className={`cursor-pointer transition-all duration-300 border-2 overflow-hidden ${selected ? 'border-[#2FCE65] shadow-lg shadow-[#2FCE65]/10 bg-[#2FCE65]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/10 bg-white dark:bg-card'}`}
             onClick={() => {
                 onSelect(route);
-                setExpanded(!expanded);
+                navigate('/route-details', {
+                    state: {
+                        route,
+                        originStr,
+                        destStr,
+                        originCoords,
+                        destCoords
+                    }
+                });
             }}
         >
             <CardContent className="p-0">
@@ -65,35 +69,6 @@ export default function RouteCard({ route, selected, onSelect }: RouteCardProps)
                         co2={route.co2}
                     />
                 </div>
-
-                {/* Expanded Details - The Journey Timeline */}
-                <AnimatePresence>
-                    {(selected || expanded) && (
-                        <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="border-t border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-black/20"
-                        >
-                            <div className="p-5">
-                                <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Journey Segments</h4>
-                                <JourneyTimeline steps={steps} />
-
-                                <div className="mt-6 flex justify-center">
-                                    <button className="text-xs text-gray-400 flex items-center gap-1 hover:text-gray-600 dark:hover:text-gray-200">
-                                        <ChevronUp className="w-3 h-3" /> Hide Details
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {!selected && !expanded && (
-                    <div className="h-1 bg-gray-100 dark:bg-white/5 mx-5 mb-2 rounded-full overflow-hidden">
-                        <div className="h-full bg-gray-200 dark:bg-white/10 w-1/3"></div>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );

@@ -1,11 +1,34 @@
 import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface SafetyMonitorProps {
     status: 'safe' | 'deviated' | 'stopped';
     lastUpdated: string;
+    onSafeClick?: () => void;
+    onCallClick?: () => void;
 }
 
-export default function SafetyMonitor({ status, lastUpdated }: SafetyMonitorProps) {
+export default function SafetyMonitor({ status, lastUpdated, onSafeClick, onCallClick }: SafetyMonitorProps) {
+    const [countdown, setCountdown] = useState(30);
+
+    useEffect(() => {
+        if (status === 'deviated') {
+            setCountdown(30);
+            if ('vibrate' in navigator) {
+                // Vibrate device
+                navigator.vibrate([500, 200, 500, 200, 500]);
+            }
+        }
+    }, [status]);
+
+    useEffect(() => {
+        if (status === 'deviated' && countdown > 0) {
+            const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+            return () => clearTimeout(timer);
+        } else if (status === 'deviated' && countdown === 0) {
+            if (onCallClick) onCallClick();
+        }
+    }, [status, countdown, onCallClick]);
     return (
         <div className={`rounded-xl p-4 border ${status === 'safe' ? 'bg-green-50 border-green-100 dark:bg-green-900/20 dark:border-green-800' :
             status === 'deviated' ? 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800' :
@@ -40,9 +63,16 @@ export default function SafetyMonitor({ status, lastUpdated }: SafetyMonitorProp
             </div>
 
             {status !== 'safe' && (
-                <div className="mt-4 flex gap-2">
-                    <button className="flex-1 bg-white border border-gray-200 text-gray-700 font-bold py-2 rounded-lg text-sm">I'm Safe</button>
-                    <button className="flex-1 bg-red-600 text-white font-bold py-2 rounded-lg text-sm animate-pulse">SOS</button>
+                <div className="mt-4 flex flex-col gap-2">
+                    {status === 'deviated' && (
+                        <p className="text-xs font-bold text-red-600 animate-pulse text-center bg-red-100 dark:bg-red-900/50 py-1 rounded">
+                            Auto-calling emergency contact in {countdown}s...
+                        </p>
+                    )}
+                    <div className="flex gap-2">
+                        <button onClick={onSafeClick} className="flex-1 bg-white border border-gray-200 text-gray-700 font-bold py-2 rounded-lg text-sm hover:bg-gray-50">I'm Safe</button>
+                        <button onClick={onCallClick} className="flex-1 bg-red-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-red-700">Place a Call</button>
+                    </div>
                 </div>
             )}
         </div>

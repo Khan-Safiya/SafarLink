@@ -8,6 +8,7 @@ import LiveTracking from "./pages/LiveTracking";
 import Landing from "./pages/Landing";
 import { SocketProvider } from "./context/SocketContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import RouteDetails from "./pages/RouteDetails";
 
 function App() {
   return (
@@ -49,6 +50,19 @@ function App() {
                 <>
                   <SignedIn>
                     <VehiclePooling />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/route-details"
+              element={
+                <>
+                  <SignedIn>
+                    <RouteDetails />
                   </SignedIn>
                   <SignedOut>
                     <RedirectToSignIn />

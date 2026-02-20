@@ -7,7 +7,7 @@ import { Server } from 'socket.io';
 import { swaggerUi, specs } from './config/swagger';
 import { setupSocket } from './socket';
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const app = express();
 const server = http.createServer(app);

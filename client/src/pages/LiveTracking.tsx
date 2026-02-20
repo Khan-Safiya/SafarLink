@@ -9,6 +9,8 @@ import { Phone, AlertCircle } from "lucide-react";
 import SOSButton from "../components/SOSButton";
 import ShareTrackingWidget from "../components/ShareTrackingWidget";
 import SafetyMonitor from "../components/SafetyMonitor";
+import JourneyChecklist from "../components/JourneyChecklist";
+import { useLocation } from "react-router-dom";
 
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
 
@@ -16,19 +18,91 @@ export default function LiveTracking() {
     const [isWomenOnly, setIsWomenOnly] = useState(false);
     const [isDriverMode, setIsDriverMode] = useState(false);
 
+    // Route tracking state
+    const location = useLocation();
+    const { route, origin, destination } = location.state || {};
+    const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
+    const [markerLocation, setMarkerLocation] = useState<google.maps.LatLngLiteral | null>(null);
+
     // Safety Status State
     const [safetyStatus, setSafetyStatus] = useState<'safe' | 'deviated' | 'stopped'>('safe');
 
-    // Simulate a safety event after 5 seconds
+    // Simulate auto route deviation when user is on 'auto' segment
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setSafetyStatus('deviated');
-        }, 5000);
-        return () => clearTimeout(timer);
-    }, []);
+        if (route?.steps?.[currentStepIndex]?.type === 'auto' && safetyStatus === 'safe') {
+            const timer = setTimeout(() => {
+                // Determine we are 500m off route
+                setSafetyStatus('deviated');
+            }, 3000); // Trigger 3 seconds into the auto segment simulation
+            return () => clearTimeout(timer);
+        }
+    }, [currentStepIndex, route, safetyStatus]);
+
+    const handleSafe = () => setSafetyStatus('safe');
+    const handleCall = () => window.location.href = 'tel:+917385875052';
 
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     const { isLoaded } = useJsApiLoader({ id: 'google-map-script', googleMapsApiKey: apiKey || "", libraries });
+
+    // Fetch Directions for the path
+    useEffect(() => {
+        if (isLoaded && origin && destination && window.google) {
+            const directionsService = new google.maps.DirectionsService();
+            directionsService.route({
+                origin,
+                destination,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK && result) {
+                    setDirections(result);
+                }
+            });
+        }
+    }, [isLoaded, origin, destination]);
+
+    // Live Tracking Simulation Loop
+    useEffect(() => {
+        if (!directions || !route?.steps) return;
+
+        const path = directions.routes[0].overview_path;
+        if (!path || path.length === 0) return;
+
+        let startTime: number | null = null;
+        const duration = 20000; // 20 seconds for the entire journey demo
+        let animationFrame: number;
+
+        const animate = (time: number) => {
+            if (!startTime) startTime = time;
+            const elapsed = time - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Interpolate position on path
+            const pointIndex = Math.min(Math.floor(progress * path.length), path.length - 1);
+            const point = path[pointIndex];
+            if (point) {
+                setMarkerLocation({ lat: point.lat(), lng: point.lng() });
+            }
+
+            // Update step index based on progress
+            const totalSteps = route.steps.length;
+            const currentStep = Math.min(Math.floor(progress * totalSteps), totalSteps);
+            setCurrentStepIndex(currentStep);
+
+            if (progress < 1) {
+                animationFrame = requestAnimationFrame(animate);
+            } else {
+                setMarkerLocation({ lat: path[path.length - 1].lat(), lng: path[path.length - 1].lng() });
+                setCurrentStepIndex(totalSteps);
+            }
+        };
+
+        animationFrame = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationFrame);
+    }, [directions, route]);
+
+    // apiKey already declared
 
     return (
         <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F4FDF7] dark:bg-background'}`}>
@@ -57,7 +131,12 @@ export default function LiveTracking() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* LEFT: Live Map */}
                     <div className="lg:col-span-2 rounded-[2rem] overflow-hidden shadow-xl border-4 border-white dark:border-[#0a0a0a] min-h-[600px] relative">
-                        <MapComponent isLoaded={isLoaded} />
+                        <MapComponent
+                            isLoaded={isLoaded}
+                            directions={directions}
+                            simulationLocation={markerLocation}
+                            currentStepType={route?.steps?.[currentStepIndex]?.type}
+                        />
 
                         {/* Driver Details Overlay */}
                         <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl shadow-lg border border-gray-100 dark:border-white/10 flex items-center justify-between">
@@ -78,28 +157,19 @@ export default function LiveTracking() {
 
                     {/* RIGHT: Safety Console */}
                     <div className="space-y-6">
-                        <SafetyMonitor status={safetyStatus} lastUpdated="Just now" />
+                        <SafetyMonitor
+                            status={safetyStatus}
+                            lastUpdated="Just now"
+                            onSafeClick={handleSafe}
+                            onCallClick={handleCall}
+                        />
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-sm font-bold uppercase tracking-wider text-gray-500">Emergency Contacts</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                {[
-                                    { name: "Mom", phone: "+91 98765 43210", relation: "Parent" },
-                                    { name: "Rahul (Brother)", phone: "+91 91234 56789", relation: "Sibling" }
-                                ].map((contact, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-white/5">
-                                        <div>
-                                            <p className="font-bold text-[#07503E] dark:text-white">{contact.name}</p>
-                                            <p className="text-xs text-gray-500">{contact.relation}</p>
-                                        </div>
-                                        <Button size="sm" variant="outline" className="h-8">Alert</Button>
-                                    </div>
-                                ))}
-                                <Button variant="outline" className="w-full border-dashed">+ Add Trusted Contact</Button>
-                            </CardContent>
-                        </Card>
+                        {route?.steps && (
+                            <JourneyChecklist
+                                steps={route.steps}
+                                currentStepIndex={currentStepIndex}
+                            />
+                        )}
 
                         <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl border border-red-100 dark:border-red-900/20 text-center space-y-4">
                             <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />

@@ -6,7 +6,7 @@ import MapComponent from "../components/MapComponent";
 import RouteCard from "../components/RouteCard";
 import type { RouteOption } from "../components/RouteCard";
 import SOSButton from "../components/SOSButton";
-import { setupInterceptors } from "../api/axios";
+import api, { setupInterceptors } from "../api/axios";
 import Navbar from "../components/Navbar";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -88,30 +88,71 @@ export default function Dashboard() {
     }, [currentLocation, toCoords, isLoaded]);
 
     const handleSearch = async (place: google.maps.places.PlaceResult) => {
-        if (!place.geometry?.location) return;
+        if (!place.geometry?.location || !currentLocation) return;
 
-        setToCoords({
+        const toLocation = {
             lat: place.geometry.location.lat(),
             lng: place.geometry.location.lng()
-        });
+        };
+        setToCoords(toLocation);
         setDestination(place.formatted_address || place.name || "");
         setShowRoutes(true);
 
         try {
             setupInterceptors(getToken);
-            // Simulate API call delay
-            setTimeout(() => {
-                const mockRoutes: RouteOption[] = [
-                    { id: '1', type: 'fastest', duration: '45 mins', distance: '15 km', price: 150, calories: 120, co2: 600, safetyScore: 88, tags: [] },
-                    { id: '2', type: 'cheapest', duration: '65 mins', distance: '14 km', price: 45, calories: 210, co2: 120, safetyScore: 92, tags: [] },
-                    { id: '3', type: 'safest', duration: '55 mins', distance: '16 km', price: 200, calories: 100, co2: 650, safetyScore: 98, tags: [] },
-                ];
-                setRoutes(mockRoutes);
-                setSelectedRoute(mockRoutes[0]);
-            }, 1000);
 
+            const fromStr = `${currentLocation.lat},${currentLocation.lng}`;
+            const toStr = `${toLocation.lat},${toLocation.lng}`;
+
+            // Fetch precision routes from our new Python/Node backend engine
+            const response = await api.get(`/routes?from=${fromStr}&to=${toStr}&womenOnly=${isWomenOnly}`);
+
+            if (response.data && response.data.length > 0) {
+                // Map the backend JourneyRoute into the frontend RouteOption format expected by components
+                const mappedRoutes: RouteOption[] = response.data.map((r: any) => ({
+                    id: r.id,
+                    type: r.type,
+                    duration: `${r.totalDuration} mins`,
+                    distance: r.segments.reduce((acc: number, seg: any) => {
+                        // Attempt to extract distance from description (e.g. "Direct Auto Ride (15.5 km)")
+                        const match = seg.description.match(/([\d.]+)\s*km/);
+                        return acc + (match ? parseFloat(match[1]) : 0);
+                    }, 0).toFixed(1) + ' km', // Approximate total if possible, or just string
+                    price: r.totalCost,
+                    calories: r.calories || 0,
+                    co2: r.co2 || 0,
+                    safetyScore: r.safetyScore,
+                    tags: [], // Could be added from backend if needed
+                    steps: r.segments.map((seg: any) => {
+                        let iconType = seg.mode;
+                        if (iconType === 'walking') iconType = 'walk';
+                        if (iconType === 'shared-auto' || iconType === 'pooling') iconType = 'auto';
+
+                        return {
+                            type: iconType,
+                            duration: `${seg.duration} mins`,
+                            description: seg.description
+                        };
+                    })
+                }));
+
+                // Fallback for distance calculation if regex extraction fails:
+                mappedRoutes.forEach(r => {
+                    if (r.distance === "0.0 km") r.distance = "Varies"; // or calc from polyline natively
+                });
+
+                setRoutes(mappedRoutes);
+                setSelectedRoute(mappedRoutes[0]);
+            }
         } catch (err) {
-            console.error("Failed to fetch routes", err);
+            console.error("Failed to fetch precision routes:", err);
+            // Fallback for demo if API fails or limits are reached
+            const mockRoutes: RouteOption[] = [
+                { id: '1', type: 'fastest', duration: '45 mins', distance: '15 km', price: 150, calories: 120, co2: 600, safetyScore: 88, tags: [] },
+                { id: '2', type: 'cheapest', duration: '65 mins', distance: '14 km', price: 45, calories: 210, co2: 120, safetyScore: 92, tags: [] },
+            ];
+            setRoutes(mockRoutes);
+            setSelectedRoute(mockRoutes[0]);
         }
     };
 
@@ -282,6 +323,10 @@ export default function Dashboard() {
                                             route={route}
                                             selected={selectedRoute?.id === route.id}
                                             onSelect={setSelectedRoute}
+                                            originStr={startLocationAddress}
+                                            destStr={destination}
+                                            originCoords={`${currentLocation?.lat},${currentLocation?.lng}`}
+                                            destCoords={`${toCoords?.lat},${toCoords?.lng}`}
                                         />
                                     ))
                                 ) : (

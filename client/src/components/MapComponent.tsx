@@ -14,7 +14,14 @@ const defaultCenter = {
     lng: 77.2090
 };
 
-function MapComponent({ isLoaded, directions }: { isLoaded: boolean, directions?: google.maps.DirectionsResult | null }) {
+interface MapComponentProps {
+    isLoaded: boolean;
+    directions?: google.maps.DirectionsResult | null;
+    simulationLocation?: google.maps.LatLngLiteral | null;
+    currentStepType?: string;
+}
+
+function MapComponent({ isLoaded, directions, simulationLocation, currentStepType }: MapComponentProps) {
     // User's real-time location
     const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
     const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -94,6 +101,21 @@ function MapComponent({ isLoaded, directions }: { isLoaded: boolean, directions?
                         fillOpacity: 1,
                         strokeColor: "white",
                         strokeWeight: 2,
+                    }}
+                />
+            )}
+
+            {/* Simulation Location Marker (Changes icon based on transport mode) */}
+            {simulationLocation && (
+                <Marker
+                    position={simulationLocation}
+                    zIndex={50}
+                    icon={{
+                        url: currentStepType === 'walk' ? 'https://maps.google.com/mapfiles/kml/shapes/man.png' :
+                            currentStepType === 'metro' || currentStepType === 'train' ? 'https://maps.google.com/mapfiles/kml/shapes/rail.png' :
+                                currentStepType === 'bus' ? 'https://maps.google.com/mapfiles/kml/shapes/bus.png' :
+                                    'https://maps.google.com/mapfiles/kml/shapes/cabs.png',
+                        scaledSize: new window.google.maps.Size(40, 40)
                     }}
                 />
             )}
