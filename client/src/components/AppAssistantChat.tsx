@@ -130,7 +130,7 @@ function InlineFareCard({
                     <Ruler className="w-3 h-3 text-gray-400" />
                     {fare.distance_km} km
                 </span>
-                <span className="flex items-center gap-1 font-bold text-[#07503E] dark:text-emerald-400">
+                <span className="flex items-center gap-1 font-bold text-[#111439] dark:text-[#00D4FF]">
                     <IndianRupee className="w-3 h-3" />
                     {fare.estimated_fare_inr}
                 </span>
@@ -230,7 +230,7 @@ function BookingConfirm({
                     <span>•</span>
                     <span>{selected.fareOption.duration_minutes} min</span>
                     <span>•</span>
-                    <span className="font-bold text-[#07503E] dark:text-emerald-400 flex items-center">
+                    <span className="font-bold text-[#111439] dark:text-[#00D4FF] flex items-center">
                         <IndianRupee className="w-3 h-3" />{selected.fareOption.estimated_fare_inr}
                     </span>
                 </div>
@@ -251,7 +251,7 @@ function BookingConfirm({
             <div className="flex gap-2">
                 <button
                     onClick={() => onConfirm(phone)}
-                    className="flex-1 bg-[#07503E] hover:bg-[#064031] text-white font-bold text-sm py-2 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                    className="flex-1 bg-[#111439] hover:bg-[#1a1f5c] text-white font-bold text-sm py-2 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
                 >
                     <CreditCard className="w-3.5 h-3.5" />
                     Book & Pay ₹{selected.fareOption.estimated_fare_inr}
@@ -277,17 +277,17 @@ function ETicketCard({ result }: { result: BookingResult }) {
     };
 
     return (
-        <div className="bg-gradient-to-br from-[#07503E]/10 via-emerald-50 to-white dark:from-emerald-900/30 dark:via-emerald-900/10 dark:to-transparent border-2 border-emerald-200 dark:border-emerald-700/40 rounded-2xl overflow-hidden w-full">
+        <div className="bg-gradient-to-br from-[#635BFF]/10 via-[#00D4FF]/5 to-white dark:from-indigo-900/30 dark:via-[#00D4FF]/10 dark:to-transparent border-2 border-[#00D4FF]/20 dark:border-[#00D4FF]/40 rounded-2xl overflow-hidden w-full">
             {/* Header */}
-            <div className="bg-[#07503E] px-4 py-3 flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-emerald-300" />
+            <div className="bg-[#111439] px-4 py-3 flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-[#00D4FF]" />
                 <div className="flex-1">
                     <p className="text-white font-bold text-sm">Booking Confirmed!</p>
-                    <p className="text-emerald-200 text-[10px]">SafarLink E-Ticket</p>
+                    <p className="text-[#00D4FF]/80 text-[10px]">SafarLink E-Ticket</p>
                 </div>
                 <div className="text-right">
                     <p className="text-white font-mono font-bold text-lg tracking-widest">{result.pnr}</p>
-                    <p className="text-emerald-300 text-[10px]">PNR</p>
+                    <p className="text-[#00D4FF]/80 text-[10px]">PNR</p>
                 </div>
             </div>
 
@@ -311,7 +311,7 @@ function ETicketCard({ result }: { result: BookingResult }) {
                                     <p className="font-semibold text-gray-800 dark:text-gray-100 truncate">{seg.line_name}</p>
                                     <p className="text-gray-400 truncate">{seg.from_stop} → {seg.to_stop} ({seg.num_stops} stops)</p>
                                 </div>
-                                <span className="font-bold text-[#07503E] dark:text-emerald-400 flex items-center shrink-0">
+                                <span className="font-bold text-[#111439] dark:text-[#00D4FF] flex items-center shrink-0">
                                     <IndianRupee className="w-3 h-3" />{seg.fare_inr.toFixed(0)}
                                 </span>
                             </div>
@@ -320,10 +320,10 @@ function ETicketCard({ result }: { result: BookingResult }) {
                 )}
 
                 {/* Payment summary */}
-                <div className="border-t border-emerald-100 dark:border-white/10 pt-2.5 mt-1 space-y-1">
+                <div className="border-t border-[#00D4FF]/20 dark:border-white/10 pt-2.5 mt-1 space-y-1">
                     <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-500 dark:text-gray-400">Total Paid</span>
-                        <span className="font-bold text-[#07503E] dark:text-emerald-400 flex items-center text-base">
+                        <span className="font-bold text-[#111439] dark:text-[#00D4FF] flex items-center text-base">
                             <IndianRupee className="w-4 h-4" />{result.total_fare_inr.toFixed(0)}
                         </span>
                     </div>
@@ -443,7 +443,7 @@ function MessageBubble({
                 {msg.content && (
                     <div
                         className={`px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${isUser
-                            ? "bg-[#07503E] text-white rounded-tr-sm"
+                            ? "bg-[#635BFF] text-white rounded-tr-sm"
                             : isRefused
                                 ? "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 text-amber-800 dark:text-amber-200 rounded-tl-sm"
                                 : "bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-800 dark:text-gray-100 rounded-tl-sm shadow-sm"
@@ -638,7 +638,7 @@ export default function AppAssistantChat() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.92, y: 24 }}
                         transition={{ type: "spring", damping: 22, stiffness: 260 }}
-                        className="fixed bottom-24 right-5 z-50 w-[360px] sm:w-[400px] flex flex-col rounded-3xl shadow-2xl shadow-black/20 overflow-hidden border border-gray-200 dark:border-white/10 bg-[#F4FDF7] dark:bg-[#0f1a14]"
+                        className="fixed bottom-24 right-5 z-50 w-[360px] sm:w-[400px] flex flex-col rounded-3xl shadow-2xl shadow-black/20 overflow-hidden border border-gray-200 dark:border-white/10 bg-[#F8F8F9] dark:bg-[#0f1a14]"
                         style={{ maxHeight: "min(640px, 82vh)" }}
                     >
                         {/* Header */}

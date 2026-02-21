@@ -15,7 +15,7 @@ interface JourneyChecklistProps {
 export default function JourneyChecklist({ steps, currentStepIndex }: JourneyChecklistProps) {
     const getIcon = (type: string, active: boolean, completed: boolean) => {
         const props = {
-            className: `w-5 h-5 ${completed ? 'text-green-500' : active ? 'text-[#2FCE65] animate-pulse' : 'text-gray-400'}`
+            className: `w-5 h-5 ${completed ? 'text-[#635BFF]' : active ? 'text-[#00D4FF] animate-pulse' : 'text-gray-400'}`
         };
 
         switch (type.toLowerCase()) {
@@ -29,10 +29,10 @@ export default function JourneyChecklist({ steps, currentStepIndex }: JourneyChe
 
     return (
         <Card className="border-2 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#2FCE65] to-emerald-300"></div>
+            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#635BFF] to-[#00D4FF]"></div>
             <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#2FCE65]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#635BFF]" />
                     Journey Progress
                 </CardTitle>
             </CardHeader>
@@ -45,13 +45,13 @@ export default function JourneyChecklist({ steps, currentStepIndex }: JourneyChe
                     const isActive = idx === currentStepIndex;
 
                     return (
-                        <div key={idx} className={`relative z-10 flex gap-4 p-3 rounded-lg transition-colors ${isActive ? 'bg-[#2FCE65]/5 border border-[#2FCE65]/20' : ''}`}>
+                        <div key={idx} className={`relative z-10 flex gap-4 p-3 rounded-lg transition-colors ${isActive ? 'bg-[#635BFF]/5 border border-[#635BFF]/20' : ''}`}>
                             <div className="mt-0.5 bg-white dark:bg-card">
                                 {isCompleted ? (
-                                    <CheckCircle2 className="w-6 h-6 text-[#2FCE65] fill-green-50" />
+                                    <CheckCircle2 className="w-6 h-6 text-[#635BFF] fill-indigo-50" />
                                 ) : isActive ? (
-                                    <div className="w-6 h-6 rounded-full border-2 border-[#2FCE65] flex items-center justify-center bg-white dark:bg-card shadow-sm">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-[#2FCE65] animate-pulse"></div>
+                                    <div className="w-6 h-6 rounded-full border-2 border-[#00D4FF] flex items-center justify-center bg-white dark:bg-card shadow-sm">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-[#00D4FF] animate-pulse"></div>
                                     </div>
                                 ) : (
                                     <Circle className="w-6 h-6 text-gray-300 dark:text-gray-600" />
@@ -60,7 +60,7 @@ export default function JourneyChecklist({ steps, currentStepIndex }: JourneyChe
                             <div className={`flex-1 ${isCompleted ? 'opacity-50' : ''}`}>
                                 <div className="flex items-center gap-2 mb-1">
                                     {getIcon(step.type, isActive, isCompleted)}
-                                    <p className={`font-bold text-sm ${isActive ? 'text-[#07503E] dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
+                                    <p className={`font-bold text-sm ${isActive ? 'text-[#111439] dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                                         {step.description}
                                     </p>
                                 </div>
@@ -71,7 +71,7 @@ export default function JourneyChecklist({ steps, currentStepIndex }: JourneyChe
                 })}
 
                 {currentStepIndex >= steps.length && (
-                    <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-900 flex items-center justify-center gap-2 text-green-700 dark:text-green-400 font-bold">
+                    <div className="mt-4 p-3 bg-[#635BFF]/10 dark:bg-[#635BFF]/20 rounded-lg border border-[#635BFF]/30 dark:border-[#635BFF]/40 flex items-center justify-center gap-2 text-[#635BFF] dark:text-indigo-400 font-bold">
                         🎉 You have arrived!
                     </div>
                 )}

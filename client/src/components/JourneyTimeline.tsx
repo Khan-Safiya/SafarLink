@@ -41,7 +41,7 @@ export default function JourneyTimeline({ steps }: JourneyTimelineProps) {
 
                     return (
                         <div key={idx} className="flex items-start gap-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm shrink-0 ${bgColor} ring-4 ring-white dark:ring-[#0a0a0a]`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white shadow-sm shrink-0 ${bgColor} ring-4 ring-white dark:ring-[#111439]`}>
                                 <Icon className="w-5 h-5" />
                             </div>
                             <div className="pt-1">

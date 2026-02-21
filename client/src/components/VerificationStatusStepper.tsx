@@ -19,13 +19,13 @@ export default function VerificationStatusStepper() {
             <div className="flex items-center justify-between mb-6">
                 <div>
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                        <ShieldCheck className="w-5 h-5 text-blue-500" />
+                        <ShieldCheck className="w-5 h-5 text-[#635BFF]" />
                         Verification Status
                     </h3>
                     <p className="text-sm text-gray-500">Complete all steps to start earning.</p>
                 </div>
                 <div className="text-right">
-                    <span className="text-2xl font-bold text-blue-600">75%</span>
+                    <span className="text-2xl font-bold text-[#635BFF]">75%</span>
                 </div>
             </div>
 
@@ -36,9 +36,9 @@ export default function VerificationStatusStepper() {
                 <div className="space-y-6">
                     {steps.map((step) => (
                         <div key={step.id} className="flex items-center gap-4">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 ${step.status === 'completed' ? 'bg-green-100 border-green-500 text-green-600' :
-                                    step.status === 'current' ? 'bg-blue-50 border-blue-500 text-blue-600 animate-pulse' :
-                                        'bg-gray-50 border-gray-200 text-gray-300'
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 ${step.status === 'completed' ? 'bg-[#635BFF]/10 border-[#635BFF] text-[#635BFF]' :
+                                step.status === 'current' ? 'bg-[#00D4FF]/10 border-[#00D4FF] text-[#00D4FF] animate-pulse' :
+                                    'bg-gray-50 border-gray-200 text-gray-300'
                                 }`}>
                                 {step.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> :
                                     step.status === 'current' ? <Clock className="w-5 h-5" /> :
@@ -46,11 +46,11 @@ export default function VerificationStatusStepper() {
                             </div>
                             <div>
                                 <p className={`font-medium ${step.status === 'completed' ? 'text-gray-900 dark:text-white' :
-                                        step.status === 'current' ? 'text-blue-600 dark:text-blue-400 font-bold' :
-                                            'text-gray-400'
+                                    step.status === 'current' ? 'text-[#00D4FF] font-bold' :
+                                        'text-gray-400'
                                     }`}>{step.label}</p>
                                 {step.status === 'current' && (
-                                    <p className="text-xs text-blue-500 mt-1">
+                                    <p className="text-xs text-[#00D4FF] mt-1">
                                         In progress... usually takes 24-48 hours.
                                     </p>
                                 )}

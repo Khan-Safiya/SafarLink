@@ -129,7 +129,7 @@ export default function MetroHeroScroll() {
                         className="text-center"
                     >
                         <h2 className="text-6xl md:text-8xl font-bold tracking-tight mb-4 drop-shadow-2xl">
-                            <span className="text-[#2FCE65]">Let's connect</span> <span className="text-[#07503E]">homes</span> <span className="text-[#2FCE65]">to</span> <span className="text-[#07503E]">metro</span>
+                            <span className="text-[#00D4FF]">Let's connect</span> <span className="text-white">homes</span> <span className="text-[#00D4FF]">to</span> <span className="text-white">metro</span>
                         </h2>
                     </motion.div>
                 </div>

@@ -33,7 +33,7 @@ export default function RouteCard({ route, selected, onSelect, originStr, destSt
 
     return (
         <Card
-            className={`cursor-pointer transition-all duration-300 border-2 overflow-hidden ${selected ? 'border-[#2FCE65] shadow-lg shadow-[#2FCE65]/10 bg-[#2FCE65]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/10 bg-white dark:bg-card'}`}
+            className={`cursor-pointer transition-all duration-300 border-2 overflow-hidden ${selected ? 'border-[#635BFF] shadow-lg shadow-[#635BFF]/10 bg-[#635BFF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/10 bg-white dark:bg-card'}`}
             onClick={() => {
                 onSelect(route);
                 navigate('/route-details', {
@@ -55,9 +55,9 @@ export default function RouteCard({ route, selected, onSelect, originStr, destSt
                             {route.type === 'fastest' && <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200">⚡ Fastest</Badge>}
                             {route.type === 'cheapest' && <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">💰 Cheapest</Badge>}
                             {route.type === 'safest' && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200">🛡️ Safest</Badge>}
-                            {route.type === 'eco' && <Badge className="bg-[#2FCE65]/20 text-[#07503E] hover:bg-[#2FCE65]/20 border-[#2FCE65]/30">🌱 Eco-Friendly</Badge>}
+                            {route.type === 'eco' && <Badge className="bg-[#635BFF]/20 text-[#111439] hover:bg-[#635BFF]/20 border-[#635BFF]/30">🌱 Eco-Friendly</Badge>}
                         </div>
-                        {selected && <CheckCircle2 className="text-[#2FCE65] w-6 h-6" />}
+                        {selected && <CheckCircle2 className="text-[#635BFF] w-6 h-6" />}
                     </div>
 
                     <KPIMetricsGrid

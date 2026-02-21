@@ -15,50 +15,50 @@ export default function SustainabilityScoreboard({ co2Saved }: SustainabilitySco
     const progress = Math.min((co2Saved / 50) * 100, 100);
 
     return (
-        <div className="bg-[#2FCE65]/10 dark:bg-[#2FCE65]/5 border border-[#2FCE65]/20 rounded-2xl p-6 relative overflow-hidden">
+        <div className="bg-[#635BFF]/10 dark:bg-[#635BFF]/5 border border-[#635BFF]/20 rounded-2xl p-6 relative overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute -right-10 -bottom-10 opacity-10">
-                <Trees className="w-40 h-40 text-[#2FCE65]" />
+                <Trees className="w-40 h-40 text-[#635BFF]" />
             </div>
 
             <div className="flex items-center justify-between mb-4 relative z-10">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-[#2FCE65] rounded-lg text-white">
+                    <div className="p-2 bg-[#635BFF] rounded-lg text-white">
                         <Leaf className="w-5 h-5" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-[#07503E] dark:text-white">Eco-Impact Scoreboard</h3>
-                        <p className="text-xs text-[#07503E]/60 dark:text-white/60">Your contribution to a greener planet</p>
+                        <h3 className="font-bold text-[#111439] dark:text-white">Eco-Impact Scoreboard</h3>
+                        <p className="text-xs text-[#111439]/60 dark:text-white/60">Your contribution to a greener planet</p>
                     </div>
                 </div>
-                <Badge variant="outline" className="border-[#2FCE65] text-[#2FCE65] bg-white dark:bg-black/50">
+                <Badge variant="outline" className="border-[#635BFF] text-[#635BFF] bg-white dark:bg-black/50">
                     Level 1: Seedling
                 </Badge>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6 relative z-10">
                 <div>
-                    <p className="text-2xl font-bold text-[#07503E] dark:text-white">{co2Saved} kg</p>
-                    <p className="text-xs text-[#07503E]/60 dark:text-white/60">CO₂ Emissions Prevented</p>
+                    <p className="text-2xl font-bold text-[#111439] dark:text-white">{co2Saved} kg</p>
+                    <p className="text-xs text-[#111439]/60 dark:text-white/60">CO₂ Emissions Prevented</p>
                 </div>
                 <div>
-                    <p className="text-2xl font-bold text-[#07503E] dark:text-white">≈ {treesPlanted}</p>
-                    <p className="text-xs text-[#07503E]/60 dark:text-white/60">Trees Planted Equivalent</p>
+                    <p className="text-2xl font-bold text-[#111439] dark:text-white">≈ {treesPlanted}</p>
+                    <p className="text-xs text-[#111439]/60 dark:text-white/60">Trees Planted Equivalent</p>
                 </div>
             </div>
 
             {/* Progress Bar */}
             <div className="relative z-10">
-                <div className="flex justify-between text-xs mb-1 font-medium text-[#07503E]/70 dark:text-white/70">
+                <div className="flex justify-between text-xs mb-1 font-medium text-[#111439]/70 dark:text-white/70">
                     <span>Next Badge: Sapling</span>
                     <span>{co2Saved} / 50 kg</span>
                 </div>
-                <div className="h-2 w-full bg-[#07503E]/10 dark:bg-white/10 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-[#111439]/10 dark:bg-white/10 rounded-full overflow-hidden">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-r from-[#2FCE65] to-emerald-600"
+                        className="h-full bg-gradient-to-r from-[#635BFF] to-[#00D4FF]"
                     />
                 </div>
             </div>

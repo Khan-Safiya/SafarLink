@@ -98,8 +98,8 @@
     --popover: 0 0% 0%;
     /* Pure Black */
     --popover-foreground: 210 40% 98%;
-    --primary: 140 65% 50%;
-    /* Eco Green #2FCE65 */
+    --primary: 243 100% 68%;
+    /* Indigo #635BFF */
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -109,10 +109,10 @@
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 140 65% 20%;
-    /* Dark Green Border */
-    --input: 140 65% 20%;
-    --ring: 140 65% 50%;
+    --border: 243 100% 12%;
+    /* Dark Blue Border */
+    --input: 243 100% 12%;
+    --ring: 243 100% 68%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

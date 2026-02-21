@@ -86,7 +86,7 @@ export default function JourneyHeader({
                     <Button
                         onClick={onSearch}
                         disabled={loading}
-                        className="w-full md:w-auto px-8 py-6 rounded-xl font-bold text-white bg-[#07503E] hover:bg-[#0a6c54] dark:bg-[#2FCE65] dark:text-[#07503E] dark:hover:bg-[#25a953] shadow-lg shadow-[#2FCE65]/20 hover:shadow-xl transition-all active:scale-95"
+                        className="w-full md:w-auto px-8 py-6 rounded-xl font-bold text-white bg-[#111439] hover:bg-[#1a1f5c] dark:bg-[#635BFF] dark:text-white dark:hover:bg-indigo-700 shadow-lg shadow-[#635BFF]/20 hover:shadow-xl transition-all active:scale-95"
                     >
                         {loading ? 'Routing...' : 'Compare Routes'}
                     </Button>

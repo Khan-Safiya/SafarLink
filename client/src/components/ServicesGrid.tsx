@@ -63,7 +63,7 @@ export default function ServicesGrid() {
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${service.color}`}>
                         {service.icon}
                     </div>
-                    <h3 className="font-bold text-[#07503E] dark:text-white">{service.title}</h3>
+                    <h3 className="font-bold text-[#111439] dark:text-white">{service.title}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{service.desc}</p>
                 </motion.div>
             ))}

@@ -161,7 +161,15 @@ export default function VehiclePooling() {
     };
 
     return (
-        <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F4FDF7] dark:bg-background'}`}>
+        <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden relative ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F8F8F9] dark:bg-background'}`}>
+            {/* Stripe Gradient Blobs */}
+            {!isWomenOnly && (
+                <>
+                    <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#635BFF] rounded-full blur-[140px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                    <div className="absolute top-[30%] right-[-10%] w-[400px] h-[400px] bg-[#00D4FF] rounded-full blur-[120px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                </>
+            )}
+
             <Navbar isWomenOnly={isWomenOnly} setIsWomenOnly={setIsWomenOnly} isDriverMode={isDriverMode} setIsDriverMode={setIsDriverMode} />
 
             {/* TOAST NOTIFICATION */}
@@ -169,7 +177,7 @@ export default function VehiclePooling() {
                 {toast && (
                     <motion.div
                         initial={{ opacity: 0, y: -50, x: "-50%" }} animate={{ opacity: 1, y: 0, x: "-50%" }} exit={{ opacity: 0, y: -50, x: "-50%" }}
-                        className={`fixed top-24 left-1/2 z-[999] px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-white font-medium ${toast.type === "error" ? "bg-red-600" : "bg-[#07503E]"}`}
+                        className={`fixed top-24 left-1/2 z-[999] px-6 py-3 rounded-2xl shadow-xl flex items-center gap-3 text-white font-medium ${toast.type === "error" ? "bg-red-600" : "bg-[#111439]"}`}
                     >
                         {toast.type === "error" ? <AlertTriangle className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
                         {toast.msg}
@@ -182,7 +190,7 @@ export default function VehiclePooling() {
                 {/* HEADER & TABS */}
                 <div className="text-center space-y-6">
                     <div>
-                        <h1 className={`text-4xl md:text-5xl font-extrabold tracking-tight mb-3 ${isWomenOnly ? 'text-pink-900 dark:text-pink-100' : 'text-[#07503E] dark:text-white'}`}>
+                        <h1 className={`text-4xl md:text-5xl font-extrabold tracking-tight mb-3 ${isWomenOnly ? 'text-pink-900 dark:text-pink-100' : 'text-[#111439] dark:text-white'}`}>
                             Vehicle Pooling
                         </h1>
                         <p className={`text-lg max-w-2xl mx-auto ${isWomenOnly ? 'text-pink-800/80 dark:text-pink-200/80' : 'text-gray-600 dark:text-gray-400'}`}>
@@ -192,7 +200,7 @@ export default function VehiclePooling() {
 
                     <div className="inline-flex bg-white dark:bg-black/40 p-1.5 rounded-full border border-gray-100 dark:border-white/10 shadow-sm relative">
                         <div
-                            className={`absolute top-1.5 bottom-1.5 rounded-full transition-all duration-300 ${isWomenOnly ? 'bg-pink-600' : 'bg-[#07503E]'}`}
+                            className={`absolute top-1.5 bottom-1.5 rounded-full transition-all duration-300 ${isWomenOnly ? 'bg-pink-600' : 'bg-[#111439]'}`}
                             style={{
                                 width: 'calc(50% - 6px)',
                                 left: activeTab === 'find' ? '6px' : 'calc(50%)'
@@ -218,15 +226,15 @@ export default function VehiclePooling() {
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
 
                         {/* Search Bar */}
-                        <div className="bg-white dark:bg-card p-4 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm flex flex-col md:flex-row gap-3 items-center">
+                        <div className="bg-white/80 backdrop-blur-md dark:bg-card p-4 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm flex flex-col md:flex-row gap-3 items-center">
                             <div className="flex-1 flex gap-3 w-full">
                                 <div className="relative flex-1">
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
-                                    <input value={searchFrom} onChange={e => setSearchFrom(e.target.value)} placeholder="Leaving from..." className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 rounded-2xl outline-none text-sm dark:text-white" />
+                                    <input value={searchFrom} onChange={e => setSearchFrom(e.target.value)} placeholder="Leaving from..." className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 dark:bg-white/5 rounded-2xl outline-none text-sm dark:text-white" />
                                 </div>
                                 <div className="relative flex-1">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
-                                    <input value={searchTo} onChange={e => setSearchTo(e.target.value)} placeholder="Going to..." className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 rounded-2xl outline-none text-sm dark:text-white" />
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#635BFF]" />
+                                    <input value={searchTo} onChange={e => setSearchTo(e.target.value)} placeholder="Going to..." className="w-full pl-11 pr-4 py-3.5 bg-gray-50/50 dark:bg-white/5 rounded-2xl outline-none text-sm dark:text-white" />
                                 </div>
                             </div>
                             <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
@@ -234,13 +242,13 @@ export default function VehiclePooling() {
                                     <button
                                         key={type}
                                         onClick={() => setFilterType(type as any)}
-                                        className={`px-4 py-3 rounded-2xl text-sm font-semibold whitespace-nowrap transition-colors border ${filterType === type ? (isWomenOnly ? 'bg-pink-100 border-pink-200 text-pink-700' : 'bg-emerald-50 border-emerald-200 text-emerald-700') : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                                        className={`px-4 py-3 rounded-2xl text-sm font-semibold whitespace-nowrap transition-colors border ${filterType === type ? (isWomenOnly ? 'bg-pink-100 border-pink-200 text-pink-700' : 'bg-[#635BFF]/10 border-[#635BFF]/30 text-[#635BFF]') : 'bg-transparent border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'}`}
                                     >
                                         {type}
                                     </button>
                                 ))}
                             </div>
-                            <button onClick={fetchRides} className={`px-6 py-3.5 text-white font-bold rounded-2xl md:ml-2 w-full md:w-auto ${isWomenOnly ? 'bg-pink-600 hover:bg-pink-700' : 'bg-[#07503E] hover:bg-[#064031]'}`}>
+                            <button onClick={fetchRides} className={`px-6 py-3.5 text-white font-bold rounded-2xl md:ml-2 w-full md:w-auto ${isWomenOnly ? 'bg-pink-600 hover:bg-pink-700' : 'bg-[#111439] hover:bg-[#1a1f5c]'}`}>
                                 Search
                             </button>
                         </div>
@@ -249,7 +257,7 @@ export default function VehiclePooling() {
                         {loadingRides ? (
                             <div className="py-20 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-gray-400" /></div>
                         ) : rides.length === 0 ? (
-                            <div className="text-center py-20 bg-white/50 dark:bg-black/20 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800">
+                            <div className="text-center py-20 bg-white/50 dark:bg-black/20 rounded-3xl border border-dashed border-gray-200 dark:border-gray-800 backdrop-blur-sm">
                                 <div className="text-5xl mb-4 opacity-50">🚗</div>
                                 <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300">No rides found</h3>
                                 <p className="text-gray-500 mt-1">Try changing your route or vehicle type.</p>
@@ -257,22 +265,22 @@ export default function VehiclePooling() {
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {rides.map((ride) => (
-                                    <div key={ride._id} className="bg-white dark:bg-card rounded-3xl p-6 border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-
-                                        <div className="flex justify-between items-start mb-6">
+                                    <div key={ride._id} className="bg-white/90 backdrop-blur-sm dark:bg-card rounded-3xl p-6 border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#635BFF]/5 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform duration-500"></div>
+                                        <div className="flex justify-between items-start mb-6 z-10 relative">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center text-xl font-bold text-gray-700 dark:text-gray-300">
                                                     {ride.hostName.charAt(0)}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-gray-900 dark:text-white leading-tight">{ride.hostName}</h4>
+                                                    <h4 className="font-bold text-[#111439] dark:text-white leading-tight">{ride.hostName}</h4>
                                                     <p className="text-xs text-gray-500 font-medium flex items-center mt-1">
-                                                        <ShieldCheck className="w-3 h-3 text-emerald-500 mr-1" /> Verified Host
+                                                        <ShieldCheck className="w-3 h-3 text-[#635BFF] mr-1" /> Verified Host
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">₹{ride.farePerSeat}</p>
+                                                <p className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#635BFF] to-[#00D4FF]">₹{ride.farePerSeat}</p>
                                                 <p className="text-xs text-gray-500">per seat</p>
                                             </div>
                                         </div>
@@ -284,33 +292,33 @@ export default function VehiclePooling() {
                                                 <p className="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">{ride.from}</p>
                                             </div>
                                             <div className="flex gap-4 items-center relative z-10">
-                                                <div className="w-4 h-4 rounded-full bg-emerald-100 border-2 border-emerald-500" />
+                                                <div className="w-4 h-4 rounded-full bg-[#00D4FF]/20 border-2 border-[#00D4FF]" />
                                                 <p className="font-medium text-gray-800 dark:text-gray-200 text-sm truncate">{ride.to}</p>
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-wrap gap-2 mb-6">
-                                            <div className="bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-gray-100 dark:border-transparent">
-                                                <Calendar className="w-3.5 h-3.5" />
+                                        <div className="flex flex-wrap gap-2 mb-6 relative z-10">
+                                            <div className="bg-[#111439]/5 dark:bg-white/5 text-gray-700 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-transparent">
+                                                <Calendar className="w-3.5 h-3.5 text-[#635BFF]" />
                                                 {new Date(ride.departureTime).toLocaleDateString()}
                                             </div>
-                                            <div className="bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-gray-100 dark:border-transparent">
-                                                <Clock className="w-3.5 h-3.5" />
+                                            <div className="bg-[#111439]/5 dark:bg-white/5 text-gray-700 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-transparent">
+                                                <Clock className="w-3.5 h-3.5 text-[#635BFF]" />
                                                 {new Date(ride.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
-                                            <div className="bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-gray-100 dark:border-transparent">
-                                                <Car className="w-3.5 h-3.5" />
+                                            <div className="bg-[#111439]/5 dark:bg-white/5 text-gray-700 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-transparent">
+                                                <Car className="w-3.5 h-3.5 text-[#635BFF]" />
                                                 {ride.vehicleType} · {ride.vehicleDetails}
                                             </div>
-                                            <div className="bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-gray-100 dark:border-transparent">
-                                                <User className="w-3.5 h-3.5" />
+                                            <div className="bg-[#111439]/5 dark:bg-white/5 text-gray-700 dark:text-gray-300 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium border border-transparent">
+                                                <User className="w-3.5 h-3.5 text-[#635BFF]" />
                                                 {ride.availableSeats} seat(s) left
                                             </div>
                                         </div>
 
                                         <button
                                             onClick={() => setBookingRide(ride)}
-                                            className={`w-full py-3.5 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 ${isWomenOnly ? 'bg-pink-100 text-pink-700 hover:bg-pink-200' : 'bg-[#E6F3EF] dark:bg-[#07503E]/20 text-[#07503E] dark:text-emerald-400 hover:bg-[#D5EAE2] dark:hover:bg-[#07503E]/40'}`}
+                                            className={`w-full py-3.5 rounded-xl font-bold transition-all text-sm flex items-center justify-center gap-2 relative z-10 ${isWomenOnly ? 'bg-pink-100 text-pink-700 hover:bg-pink-200' : 'bg-[#111439] dark:bg-[#635BFF]/20 text-white dark:text-[#00D4FF] hover:bg-[#1a1f5c] shadow-lg hover:shadow-xl dark:hover:bg-[#635BFF]/40'}`}
                                         >
                                             Request Pool Ride <ChevronRight className="w-4 h-4" />
                                         </button>
@@ -324,27 +332,27 @@ export default function VehiclePooling() {
                 {/* HOST A RIDE TAB */}
                 {activeTab === 'host' && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                        <form onSubmit={handleHostSubmit} className="bg-white dark:bg-card p-6 md:p-10 rounded-3xl border border-gray-100 dark:border-white/5 shadow-xl max-w-3xl mx-auto space-y-8">
+                        <form onSubmit={handleHostSubmit} className="bg-white/90 backdrop-blur-md dark:bg-card p-6 md:p-10 rounded-3xl border border-gray-100 dark:border-white/5 shadow-xl max-w-3xl mx-auto space-y-8 relative z-10">
 
                             {/* Route */}
                             <div>
-                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">1. Route & Schedule</h3>
+                                <h3 className="text-sm font-bold text-[#635BFF] uppercase tracking-widest mb-4">1. Route & Schedule</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Leaving from</label>
-                                        <input required value={hostForm.from} onChange={e => setHostForm({ ...hostForm, from: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" placeholder="e.g. Hinjewadi Phase 3" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Leaving from</label>
+                                        <input required value={hostForm.from} onChange={e => setHostForm({ ...hostForm, from: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" placeholder="e.g. Hinjewadi Phase 3" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Going to</label>
-                                        <input required value={hostForm.to} onChange={e => setHostForm({ ...hostForm, to: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" placeholder="e.g. Shivajinagar" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Going to</label>
+                                        <input required value={hostForm.to} onChange={e => setHostForm({ ...hostForm, to: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" placeholder="e.g. Shivajinagar" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Date (Max 24h away)</label>
-                                        <input required type="date" min={new Date().toISOString().split('T')[0]} value={hostForm.departureDate} onChange={e => setHostForm({ ...hostForm, departureDate: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Date (Max 24h away)</label>
+                                        <input required type="date" min={new Date().toISOString().split('T')[0]} value={hostForm.departureDate} onChange={e => setHostForm({ ...hostForm, departureDate: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Time</label>
-                                        <input required type="time" value={hostForm.departureTime} onChange={e => setHostForm({ ...hostForm, departureTime: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Time</label>
+                                        <input required type="time" value={hostForm.departureTime} onChange={e => setHostForm({ ...hostForm, departureTime: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" />
                                     </div>
                                 </div>
                             </div>
@@ -353,20 +361,20 @@ export default function VehiclePooling() {
 
                             {/* Vehicle */}
                             <div>
-                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">2. Vehicle Details</h3>
+                                <h3 className="text-sm font-bold text-[#635BFF] uppercase tracking-widest mb-4">2. Vehicle Details</h3>
                                 <div className="flex gap-3 mb-5">
                                     {["Bike", "Car", "Scooter"].map(type => (
                                         <button
                                             key={type} type="button" onClick={() => setHostForm({ ...hostForm, vehicleType: type as any })}
-                                            className={`flex-1 py-3 border-2 rounded-xl text-sm font-bold transition-all ${hostForm.vehicleType === type ? (isWomenOnly ? 'border-pink-500 bg-pink-50 text-pink-700' : 'border-[#07503E] bg-emerald-50 text-[#07503E] dark:bg-[#07503E]/20 dark:text-emerald-400') : 'border-gray-200 dark:border-white/10 text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                                            className={`flex-1 py-3 border-2 rounded-xl text-sm font-bold transition-all ${hostForm.vehicleType === type ? (isWomenOnly ? 'border-pink-500 bg-pink-50 text-pink-700' : 'border-[#635BFF] bg-[#635BFF]/10 text-[#635BFF] dark:bg-[#635BFF]/20 dark:text-[#00D4FF]') : 'border-gray-200 dark:border-white/10 text-[#111439]/70 hover:bg-[#111439]/5 dark:hover:bg-white/5'}`}
                                         >
                                             {type}
                                         </button>
                                     ))}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Vehicle Model & License Plate</label>
-                                    <input required value={hostForm.vehicleDetails} onChange={e => setHostForm({ ...hostForm, vehicleDetails: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" placeholder="e.g. Honda Activa 6G - MH12AA1111" />
+                                    <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Vehicle Model & License Plate</label>
+                                    <input required value={hostForm.vehicleDetails} onChange={e => setHostForm({ ...hostForm, vehicleDetails: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" placeholder="e.g. Honda Activa 6G - MH12AA1111" />
                                 </div>
                             </div>
 
@@ -374,28 +382,28 @@ export default function VehiclePooling() {
 
                             {/* Fare & Seats */}
                             <div>
-                                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">3. Booking & Payment</h3>
+                                <h3 className="text-sm font-bold text-[#635BFF] uppercase tracking-widest mb-4">3. Booking & Payment</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Available Seats</label>
-                                        <input required type="number" min="1" max="6" value={hostForm.totalSeats} onChange={e => setHostForm({ ...hostForm, totalSeats: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Available Seats</label>
+                                        <input required type="number" min="1" max="6" value={hostForm.totalSeats} onChange={e => setHostForm({ ...hostForm, totalSeats: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">Fare (per seat) ₹</label>
-                                        <input required type="number" min="0" value={hostForm.farePerSeat} onChange={e => setHostForm({ ...hostForm, farePerSeat: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" placeholder="e.g. 50" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">Fare (per seat) ₹</label>
+                                        <input required type="number" min="0" value={hostForm.farePerSeat} onChange={e => setHostForm({ ...hostForm, farePerSeat: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" placeholder="e.g. 50" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 pl-1">UPI ID (For Balance)</label>
-                                        <input required value={hostForm.paymentDetails} onChange={e => setHostForm({ ...hostForm, paymentDetails: e.target.value })} className="w-full bg-gray-50 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-blue-300 outline-none text-sm dark:text-white" placeholder="user@upi" />
+                                        <label className="text-sm font-semibold text-[#111439] dark:text-gray-300 pl-1">UPI ID (For Balance)</label>
+                                        <input required value={hostForm.paymentDetails} onChange={e => setHostForm({ ...hostForm, paymentDetails: e.target.value })} className="w-full bg-[#111439]/5 dark:bg-white/5 px-4 py-3 rounded-xl border border-transparent focus:border-[#635BFF] outline-none text-sm dark:text-white" placeholder="user@upi" />
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-4 flex items-center gap-1.5">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                    <ShieldCheck className="w-4 h-4 text-[#635BFF]" />
                                     We collect a 10% advance from the rider instantly to secure the booking. The rider pays the remaining 90% via your UPI directly.
                                 </p>
                             </div>
 
-                            <button type="submit" disabled={postingRide} className={`w-full py-4 rounded-2xl font-bold text-white text-base shadow-md transition-transform active:scale-[0.98] flex items-center justify-center gap-2 ${postingRide ? 'opacity-70 cursor-wait' : ''} ${isWomenOnly ? 'bg-pink-600 hover:bg-pink-700' : 'bg-[#07503E] hover:bg-[#064031]'}`}>
+                            <button type="submit" disabled={postingRide} className={`w-full py-4 rounded-2xl font-bold text-white text-base shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 ${postingRide ? 'opacity-70 cursor-wait' : ''} ${isWomenOnly ? 'bg-pink-600 hover:bg-pink-700' : 'bg-[#111439] hover:bg-[#1a1f5c]'}`}>
                                 {postingRide ? <Loader2 className="w-5 h-5 animate-spin" /> : <Car className="w-5 h-5" />}
                                 Post Pool Ride to Community
                             </button>
@@ -410,11 +418,11 @@ export default function VehiclePooling() {
                 {bookingRide && (
                     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
                         {/* Backdrop */}
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !isBooking && setBookingRide(null)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => !isBooking && setBookingRide(null)} className="absolute inset-0 bg-[#111439]/80 backdrop-blur-md" />
 
                         {/* Modal */}
                         <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white dark:bg-card w-full max-w-md rounded-[2rem] shadow-2xl relative z-10 overflow-hidden">
-                            <div className={`p-6 text-white ${isWomenOnly ? 'bg-gradient-to-br from-pink-600 to-rose-700' : 'bg-gradient-to-br from-[#07503E] to-emerald-800'}`}>
+                            <div className={`p-6 text-white ${isWomenOnly ? 'bg-gradient-to-br from-pink-600 to-rose-700' : 'bg-gradient-to-br from-[#635BFF] to-[#00D4FF]'}`}>
                                 <button onClick={() => !isBooking && setBookingRide(null)} className="absolute top-4 right-4 text-white/70 hover:text-white bg-black/20 hover:bg-black/40 rounded-full p-1.5 transition-colors">
                                     <X className="w-5 h-5" />
                                 </button>
@@ -423,17 +431,17 @@ export default function VehiclePooling() {
                             </div>
 
                             <div className="p-6 space-y-6">
-                                <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
-                                    <p className="font-bold text-gray-900 dark:text-white truncate">{bookingRide.from} <span className="opacity-50 mx-1">→</span> {bookingRide.to}</p>
+                                <div className="bg-[#F8F8F9] dark:bg-white/5 p-4 rounded-2xl border border-gray-100 dark:border-white/10">
+                                    <p className="font-bold text-[#111439] dark:text-white truncate">{bookingRide.from} <span className="opacity-50 mx-1">→</span> {bookingRide.to}</p>
                                     <p className="text-sm text-gray-500 mt-2 flex items-center gap-2">
-                                        <Car className="w-4 h-4" /> {bookingRide.vehicleType} • {bookingRide.hostName}
+                                        <Car className="w-4 h-4 text-[#635BFF]" /> {bookingRide.vehicleType} • {bookingRide.hostName}
                                     </p>
                                 </div>
 
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-600 dark:text-gray-400">Total Seat Fare</span>
-                                        <span className="font-semibold text-gray-900 dark:text-white flex items-center"><IndianRupee className="w-3.5 h-3.5" /> {bookingRide.farePerSeat}</span>
+                                        <span className="font-semibold text-[#111439] dark:text-white flex items-center"><IndianRupee className="w-3.5 h-3.5" /> {bookingRide.farePerSeat}</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-600 dark:text-gray-400">To Pay Host Later (90%)</span>
@@ -441,16 +449,16 @@ export default function VehiclePooling() {
                                     </div>
                                     <div className="h-px bg-gray-200 dark:bg-gray-800 w-full" />
                                     <div className="flex justify-between items-center">
-                                        <span className="font-bold text-gray-900 dark:text-white">To Pay Now (10% Advance)</span>
-                                        <span className={`text-xl font-extrabold flex items-center ${isWomenOnly ? 'text-pink-600 dark:text-pink-400' : 'text-[#07503E] dark:text-emerald-400'}`}>
+                                        <span className="font-bold text-[#111439] dark:text-white">To Pay Now (10% Advance)</span>
+                                        <span className={`text-xl font-extrabold flex items-center ${isWomenOnly ? 'text-pink-600 dark:text-pink-400' : 'text-[#635BFF] dark:text-[#00D4FF]'}`}>
                                             <IndianRupee className="w-5 h-5" /> {(bookingRide.farePerSeat * 0.1).toFixed(2)}
                                         </span>
                                     </div>
                                 </div>
 
-                                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 p-3 rounded-xl flex items-start gap-3">
-                                    <Phone className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
-                                    <p className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed font-medium">
+                                <div className="bg-[#635BFF]/10 dark:bg-[#635BFF]/20 border border-[#635BFF]/20 dark:border-[#635BFF]/50 p-3 rounded-xl flex items-start gap-3">
+                                    <Phone className="w-5 h-5 text-[#635BFF] dark:text-[#00D4FF] shrink-0 mt-0.5" />
+                                    <p className="text-xs text-[#111439] dark:text-[#00D4FF] leading-relaxed font-medium">
                                         Upon payment, instant WhatsApp notifications will be sent to you (+91 7058395184) and the host with contact details.
                                     </p>
                                 </div>
@@ -458,7 +466,7 @@ export default function VehiclePooling() {
                                 <button
                                     onClick={handleBook}
                                     disabled={isBooking}
-                                    className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 ${isBooking ? 'opacity-70 cursor-wait' : ''} ${isWomenOnly ? 'bg-pink-600 shadow-pink-600/20 hover:bg-pink-700' : 'bg-[#07503E] shadow-[#07503E]/20 hover:bg-[#064031]'}`}
+                                    className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-transform active:scale-[0.98] flex items-center justify-center gap-2 ${isBooking ? 'opacity-70 cursor-wait' : ''} ${isWomenOnly ? 'bg-pink-600 shadow-pink-600/20 hover:bg-pink-700' : 'bg-[#111439] shadow-xl hover:bg-[#1a1f5c]'}`}
                                 >
                                     {isBooking ? <Loader2 className="w-5 h-5 animate-spin" /> : <CreditCard className="w-5 h-5" />}
                                     Pay ₹{(bookingRide.farePerSeat * 0.1).toFixed(2)} & Confirm Seat

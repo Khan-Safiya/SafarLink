@@ -29,7 +29,7 @@ const INCIDENT_LABELS: Record<string, { label: string; emoji: string }> = {
     police_naka: { label: "Police Naka", emoji: "🚔" },
     oil_spill: { label: "Oil Spill", emoji: "🛢️" },
     other: { label: "Incident Ahead", emoji: "⚠️" },
-};
+}
 
 // ── Haversine distance (km) between two lat/lng points ───────────────────────
 function haversineKm(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral) {
@@ -275,7 +275,15 @@ export default function LiveTracking() {
     const visibleIncidents = activeIncidents.filter(i => !dismissedIds.has(i.id));
 
     return (
-        <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F4FDF7] dark:bg-background'}`}>
+        <div className={`relative min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F8F8F9] dark:bg-background'}`}>
+            {/* Stripe Gradient Blobs */}
+            {!isWomenOnly && (
+                <>
+                    <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-[#635BFF] rounded-full blur-[140px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                    <div className="absolute bottom-[20%] left-[-10%] w-[350px] h-[350px] bg-[#00D4FF] rounded-full blur-[120px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                </>
+            )}
+
             <Navbar isWomenOnly={isWomenOnly} setIsWomenOnly={setIsWomenOnly} isDriverMode={isDriverMode} setIsDriverMode={setIsDriverMode} />
 
             {/* ── Auto‑reroute alert banner (shown to ALL users on same route) ── */}
@@ -300,12 +308,12 @@ export default function LiveTracking() {
                                 <button
                                     onClick={doReroute}
                                     disabled={rerouteLoading}
-                                    className="flex items-center gap-1 bg-white text-red-600 font-bold text-xs px-3 py-1.5 rounded-xl hover:bg-red-50 disabled:opacity-60"
+                                    className="flex items-center gap-1 bg-white text-red-600 font-bold text-xs px-3 py-1.5 rounded-xl hover:bg-red-50 disabled:opacity-60 transition-colors"
                                 >
                                     <RefreshCw className={`w-3 h-3 ${rerouteLoading ? 'animate-spin' : ''}`} />
                                     Reroute
                                 </button>
-                                <button onClick={() => setShowRerouteAlert(false)} className="text-red-200 hover:text-white">
+                                <button onClick={() => setShowRerouteAlert(false)} className="text-red-200 hover:text-white transition-colors">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
@@ -331,7 +339,7 @@ export default function LiveTracking() {
                                 <div className="flex-1 min-w-0">
                                     <p className="text-xs font-bold truncate">{INCIDENT_LABELS[inc.type]?.label}</p>
                                 </div>
-                                <button onClick={() => setDismissedIds(s => new Set([...s, inc.id]))} className="text-orange-200 hover:text-white shrink-0">
+                                <button onClick={() => setDismissedIds(s => new Set([...s, inc.id]))} className="text-orange-200 hover:text-white shrink-0 transition-colors">
                                     <X className="w-3.5 h-3.5" />
                                 </button>
                             </motion.div>
@@ -352,7 +360,7 @@ export default function LiveTracking() {
                                 </Badge>
                             )}
                         </div>
-                        <h1 className="text-3xl font-bold tracking-tight text-[#07503E] dark:text-white">
+                        <h1 className="text-3xl font-bold tracking-tight text-[#111439] dark:text-white">
                             En Route {destStr ? `to ${destStr}` : 'to Destination'}
                         </h1>
                         {visibleIncidents.length > 0 && (
@@ -366,7 +374,7 @@ export default function LiveTracking() {
                         <button
                             onClick={doReroute}
                             disabled={rerouteLoading}
-                            className="flex items-center gap-2 bg-[#07503E] hover:bg-[#064031] disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-md"
+                            className="flex items-center gap-2 bg-[#111439] hover:bg-[#1a1f5c] disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-md"
                         >
                             <Navigation2 className={`w-4 h-4 ${rerouteLoading ? 'animate-spin' : ''}`} />
                             Change Route
@@ -383,7 +391,7 @@ export default function LiveTracking() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* LEFT: Live Map */}
-                    <div className="lg:col-span-2 rounded-[2rem] overflow-hidden shadow-xl border-4 border-white dark:border-[#0a0a0a] min-h-[600px] relative">
+                    <div className="lg:col-span-2 rounded-[2rem] overflow-hidden shadow-xl border-4 border-white dark:border-[#111439] min-h-[600px] relative">
                         <MapComponent
                             isLoaded={isLoaded}
                             directions={directions}
@@ -395,13 +403,13 @@ export default function LiveTracking() {
                         {/* Driver info overlay */}
                         <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl shadow-lg border border-gray-100 dark:border-white/10 flex items-center justify-between">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl">👨‍✈️</div>
+                                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-xl shadow-inner">👨‍✈️</div>
                                 <div>
-                                    <h3 className="font-bold text-[#07503E] dark:text-white">Vikram Singh</h3>
-                                    <p className="text-xs text-gray-500">Toyota Etios • MH 12 AB 1234</p>
+                                    <h3 className="font-bold text-[#111439] dark:text-white">Vikram Singh</h3>
+                                    <p className="text-xs text-[#635BFF] font-semibold dark:text-indigo-400">Toyota Etios • MH 12 AB 1234</p>
                                 </div>
                             </div>
-                            <Button size="icon" variant="ghost" className="rounded-full bg-green-50 text-green-600 hover:bg-green-100">
+                            <Button size="icon" variant="ghost" className="rounded-full bg-indigo-50 text-[#635BFF] hover:bg-indigo-100 hover:text-indigo-700 transition-colors">
                                 <Phone className="w-5 h-5" />
                             </Button>
                         </div>
@@ -438,18 +446,18 @@ export default function LiveTracking() {
                                             </div>
                                             <button
                                                 onClick={() => setDismissedIds(s => new Set([...s, inc.id]))}
-                                                className="text-orange-300 hover:text-orange-500"
+                                                className="text-orange-300 hover:text-orange-500 transition-colors"
                                             ><X className="w-3.5 h-3.5" /></button>
                                         </div>
                                     ))}
-                                    <button onClick={doReroute} className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-xl mt-1 transition-colors">
+                                    <button onClick={doReroute} className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-xl mt-1 transition-colors shadow-sm">
                                         <RefreshCw className="w-3.5 h-3.5" /> Reroute Away From Incidents
                                     </button>
                                 </CardContent>
                             </Card>
                         )}
 
-                        <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl border border-red-100 dark:border-red-900/20 text-center space-y-4">
+                        <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl border border-red-100 dark:border-red-900/20 text-center space-y-4 shadow-sm">
                             <AlertCircle className="w-10 h-10 text-red-500 mx-auto" />
                             <div>
                                 <h3 className="font-bold text-red-700 dark:text-red-300">Emergency Help</h3>

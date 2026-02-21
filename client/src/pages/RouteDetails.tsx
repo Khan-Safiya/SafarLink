@@ -32,7 +32,14 @@ export default function RouteDetails() {
     }
 
     return (
-        <div className={`relative min-h-screen font-sans transition-colors duration-500 flex flex-col overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F4FDF7] dark:bg-background'}`}>
+        <div className={`relative min-h-screen font-sans transition-colors duration-500 flex flex-col overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F8F8F9] dark:bg-background'}`}>
+            {/* Stripe Gradient Blobs */}
+            {!isWomenOnly && (
+                <>
+                    <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-[#635BFF] rounded-full blur-[140px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                    <div className="absolute bottom-[20%] left-[-10%] w-[350px] h-[350px] bg-[#00D4FF] rounded-full blur-[120px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                </>
+            )}
             <Navbar
                 isWomenOnly={isWomenOnly}
                 setIsWomenOnly={setIsWomenOnly}
@@ -44,31 +51,31 @@ export default function RouteDetails() {
                 {/* Top Nav */}
                 <button
                     onClick={() => navigate(-1)}
-                    className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:text-white"
+                    className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-[#111439] transition-colors dark:text-gray-400 dark:hover:text-white"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Back to Routing
                 </button>
 
                 {/* Header Summary Card */}
-                <Card className="border-0 shadow-lg bg-white dark:bg-card overflow-hidden">
+                <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm dark:bg-card overflow-hidden">
                     <div className={`p-6 bg-gradient-to-br ${route.type === 'fastest' ? 'from-blue-500/10 to-transparent' :
-                        route.type === 'cheapest' ? 'from-emerald-500/10 to-transparent' :
+                        route.type === 'cheapest' ? 'from-[#635BFF]/10 to-transparent' :
                             'from-amber-500/10 to-transparent'
                         }`}>
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                <h1 className="text-2xl font-bold text-[#111439] dark:text-white mb-2">
                                     Journey Plan
                                 </h1>
                                 <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                    <MapPin className="w-4 h-4" /> {originStr || 'Current Location'}
+                                    <MapPin className="w-4 h-4 text-[#635BFF]" /> {originStr || 'Current Location'}
                                     <ArrowLeft className="w-4 h-4 rotate-180 mx-1" />
-                                    <MapPin className="w-4 h-4" /> {destStr || 'Destination'}
+                                    <MapPin className="w-4 h-4 text-[#00D4FF]" /> {destStr || 'Destination'}
                                 </div>
                             </div>
                             <Badge variant="outline" className={`capitalize px-3 py-1 ${route.type === 'fastest' ? 'border-blue-200 text-blue-700 bg-blue-50' :
-                                route.type === 'cheapest' ? 'border-emerald-200 text-emerald-700 bg-emerald-50' :
+                                route.type === 'cheapest' ? 'border-[#635BFF]/30 text-[#635BFF] bg-[#635BFF]/10' :
                                     'border-amber-200 text-amber-700 bg-amber-50'
                                 }`}>
                                 {route.type}
@@ -76,21 +83,21 @@ export default function RouteDetails() {
                         </div>
 
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-xl backdrop-blur-sm border border-gray-100 dark:border-white/5">
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Clock className="w-3 h-3" /> Duration</p>
-                                <p className="font-bold text-lg text-gray-900 dark:text-white">{route.duration}</p>
+                                <p className="font-bold text-lg text-[#111439] dark:text-white">{route.duration}</p>
                             </div>
-                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><span className="text-emerald-500 font-bold">₹</span> Cost</p>
-                                <p className="font-bold text-lg text-emerald-600 dark:text-emerald-400">₹{route.price}</p>
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-xl backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><span className="text-[#635BFF] font-bold">₹</span> Cost</p>
+                                <p className="font-bold text-lg text-[#635BFF] dark:text-indigo-400">₹{route.price}</p>
                             </div>
-                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-xl backdrop-blur-sm border border-gray-100 dark:border-white/5">
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><Leaf className="w-3 h-3 text-green-500" /> CO2</p>
-                                <p className="font-bold text-lg text-gray-900 dark:text-white">{route.co2}g</p>
+                                <p className="font-bold text-lg text-[#111439] dark:text-white">{route.co2}g</p>
                             </div>
-                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-gray-100 dark:border-white/5">
+                            <div className="bg-white/50 dark:bg-black/20 p-3 rounded-xl backdrop-blur-sm border border-gray-100 dark:border-white/5">
                                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1"><ShieldCheck className="w-3 h-3 text-blue-500" /> Safety</p>
-                                <p className="font-bold text-lg text-gray-900 dark:text-white">{route.safetyScore}%</p>
+                                <p className="font-bold text-lg text-[#111439] dark:text-white">{route.safetyScore}%</p>
                             </div>
                         </div>
                     </div>
@@ -98,7 +105,7 @@ export default function RouteDetails() {
 
                 {/* Journey Timeline Breakdown */}
                 <div className="px-2">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Detailed Segments</h2>
+                    <h2 className="text-lg font-bold text-[#111439] dark:text-white mb-6">Detailed Segments</h2>
                     <JourneyTimeline steps={route.steps || []} />
                 </div>
 
@@ -107,10 +114,10 @@ export default function RouteDetails() {
             </main>
 
             {/* Fixed Action Footer */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-white/10 z-50">
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-white/10 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
                 <div className="max-w-3xl mx-auto flex gap-3 items-center">
                     <div className="hidden sm:block flex-grow">
-                        <p className="text-sm font-medium text-gray-900 dark:text-white">Ready to depart?</p>
+                        <p className="text-sm font-medium text-[#111439] dark:text-white">Ready to depart?</p>
                         <p className="text-xs text-gray-500">Live safety tracking will activate automatically.</p>
                     </div>
                     {/* Book Tickets */}
@@ -125,7 +132,7 @@ export default function RouteDetails() {
                             }
                         })}
                         variant="outline"
-                        className="px-5 h-12 font-bold border-[#07503E] text-[#07503E] hover:bg-[#07503E] hover:text-white transition-colors flex gap-2"
+                        className="px-5 h-12 font-bold border-[#111439] text-[#111439] hover:bg-[#1a1f5c] hover:text-white transition-colors flex gap-2"
                     >
                         <Ticket className="w-4 h-4" />
                         Book Tickets
@@ -141,7 +148,7 @@ export default function RouteDetails() {
                                 destStr,
                             }
                         })}
-                        className="flex-1 sm:flex-none px-8 bg-[#2FCE65] hover:bg-[#25A952] text-white flex gap-2 shadow-lg shadow-[#2FCE65]/20 h-12 text-lg font-bold"
+                        className="flex-1 sm:flex-none px-8 bg-[#635BFF] hover:bg-indigo-700 text-white flex gap-2 shadow-lg shadow-[#635BFF]/20 h-12 text-lg font-bold"
                     >
                         <Navigation className="w-5 h-5" />
                         Start Journey

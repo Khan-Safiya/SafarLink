@@ -32,7 +32,7 @@ interface SharedAuto {
 }
 
 const STATUS_META: Record<SharedAuto["status"], { label: string; color: string }> = {
-    waiting: { label: "Waiting for passengers", color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-400" },
+    waiting: { label: "Waiting for passengers", color: "text-[#635BFF] bg-[#635BFF]/10 dark:bg-[#635BFF]/20 dark:text-indigo-400" },
     full: { label: "Full — departing soon", color: "text-amber-600 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-400" },
     departed: { label: "Departed", color: "text-gray-500 bg-gray-100 dark:bg-white/5" },
     completed: { label: "Completed", color: "text-gray-500 bg-gray-100 dark:bg-white/5" },
@@ -46,10 +46,10 @@ function SeatDots({ total, available }: { total: number; available: number }) {
                 <motion.div
                     key={i}
                     initial={false}
-                    animate={{ scale: [1, 1.2, 1], backgroundColor: i < booked ? "#EF4444" : "#22C55E" }}
+                    animate={{ scale: [1, 1.2, 1], backgroundColor: i < booked ? "#EF4444" : "#635BFF" }}
                     transition={{ duration: 0.3, delay: i * 0.05 }}
                     className="w-6 h-6 rounded-full border-2 border-white dark:border-card shadow-sm"
-                    style={{ backgroundColor: i < booked ? "#EF4444" : "#22C55E" }}
+                    style={{ backgroundColor: i < booked ? "#EF4444" : "#635BFF" }}
                     title={i < booked ? "Booked" : "Available"}
                 />
             ))}
@@ -177,7 +177,11 @@ export default function SharedAutoPage() {
     const isBooked = (auto: SharedAuto) => !!user && auto.passengers.some(p => p.userId === user.id);
 
     return (
-        <div className="min-h-screen bg-[#F4FDF7] dark:bg-background font-sans">
+        <div className="min-h-screen bg-[#F8F8F9] dark:bg-background font-sans relative overflow-x-hidden">
+            {/* Stripe Gradient Blobs */}
+            <div className="absolute top-[-5%] left-[-5%] w-[400px] h-[400px] bg-[#635BFF] rounded-full blur-[140px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+            <div className="absolute bottom-[20%] right-[-10%] w-[350px] h-[350px] bg-[#00D4FF] rounded-full blur-[120px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+
             <Navbar isWomenOnly={false} setIsWomenOnly={() => { }} isDriverMode={false} setIsDriverMode={() => { }} />
 
             {/* Toast */}
@@ -185,17 +189,17 @@ export default function SharedAutoPage() {
                 {toast && (
                     <motion.div
                         initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -60, opacity: 0 }}
-                        className={`fixed top-20 left-1/2 -translate-x-1/2 z-[999] px-5 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold max-w-sm text-center ${toast.ok ? "bg-[#07503E]" : "bg-red-600"}`}
+                        className={`fixed top-20 left-1/2 -translate-x-1/2 z-[999] px-5 py-3 rounded-2xl shadow-xl text-white text-sm font-semibold max-w-sm text-center ${toast.ok ? "bg-[#111439]" : "bg-red-600"}`}
                     >
                         {toast.msg}
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+            <main className="max-w-2xl mx-auto px-4 py-8 space-y-6 relative z-10">
 
                 {/* Back */}
-                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#07503E]">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#111439] dark:hover:text-white transition-colors">
                     <ArrowLeft className="w-4 h-4" /> Back
                 </button>
 
@@ -203,35 +207,35 @@ export default function SharedAutoPage() {
                 <div>
                     <div className="flex items-center gap-2 mb-1">
                         <span className="text-3xl">🛺</span>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Shared Auto</h1>
+                        <h1 className="text-2xl font-bold text-[#111439] dark:text-white">Shared Auto</h1>
                     </div>
                     <p className="text-sm text-gray-500">Split fare with co-passengers · Real-time seat availability</p>
                 </div>
 
                 {/* Search bar */}
-                <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-white/10 p-4 flex flex-col sm:flex-row gap-3 items-center shadow-sm">
+                <div className="bg-white/80 backdrop-blur-md dark:bg-card rounded-2xl border border-gray-100 dark:border-white/10 p-4 flex flex-col sm:flex-row gap-3 items-center shadow-sm">
                     <div className="flex items-center gap-2 flex-1">
                         <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
                         <input
                             value={searchFrom}
                             onChange={e => setSearchFrom(e.target.value)}
                             placeholder="From"
-                            className="flex-1 bg-transparent text-sm font-medium outline-none text-gray-800 dark:text-white placeholder-gray-400"
+                            className="flex-1 bg-transparent text-sm font-medium outline-none text-[#111439] dark:text-white placeholder-gray-400"
                         />
                     </div>
                     <ArrowRight className="w-4 h-4 text-gray-400 shrink-0" />
                     <div className="flex items-center gap-2 flex-1">
-                        <MapPin className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <MapPin className="w-4 h-4 text-[#635BFF] shrink-0" />
                         <input
                             value={searchTo}
                             onChange={e => setSearchTo(e.target.value)}
                             placeholder="To"
-                            className="flex-1 bg-transparent text-sm font-medium outline-none text-gray-800 dark:text-white placeholder-gray-400"
+                            className="flex-1 bg-transparent text-sm font-medium outline-none text-[#111439] dark:text-white placeholder-gray-400"
                         />
                     </div>
                     <button
                         onClick={fetchAutos}
-                        className="bg-[#07503E] hover:bg-[#064031] text-white font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-colors"
+                        className="bg-[#111439] hover:bg-[#1a1f5c] text-white font-bold px-5 py-2.5 rounded-xl text-sm flex items-center gap-2 transition-colors"
                     >
                         <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} /> Search
                     </button>
@@ -240,12 +244,12 @@ export default function SharedAutoPage() {
                 {/* Results */}
                 {loading ? (
                     <div className="flex justify-center py-16">
-                        <div className="w-10 h-10 border-4 border-[#07503E] border-t-transparent rounded-full animate-spin" />
+                        <div className="w-10 h-10 border-4 border-[#635BFF] border-t-transparent rounded-full animate-spin" />
                     </div>
                 ) : autos.length === 0 ? (
                     <div className="text-center py-16 space-y-2">
                         <span className="text-5xl">🛺</span>
-                        <p className="font-bold text-gray-700 dark:text-white">No shared autos on this route</p>
+                        <p className="font-bold text-[#111439] dark:text-white">No shared autos on this route</p>
                         <p className="text-sm text-gray-400">Try "Bibwewadi → Swargate"</p>
                     </div>
                 ) : (
@@ -261,12 +265,12 @@ export default function SharedAutoPage() {
                                     key={auto._id}
                                     layout
                                     initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                                    className={`bg-white dark:bg-card rounded-3xl border-2 overflow-hidden shadow-sm transition-all ${booked ? "border-emerald-400 dark:border-emerald-600" : "border-gray-100 dark:border-white/10"}`}
+                                    className={`bg-white/90 backdrop-blur-sm dark:bg-card rounded-3xl border-2 overflow-hidden shadow-sm transition-all ${booked ? "border-[#635BFF] dark:border-[#635BFF]" : "border-gray-100 dark:border-white/10"}`}
                                 >
                                     {/* Status ribbon */}
                                     <div className={`px-5 py-2 flex items-center justify-between text-xs font-bold ${meta.color}`}>
                                         <span className="uppercase tracking-wider">{meta.label}</span>
-                                        {booked && <span className="flex items-center gap-1 text-emerald-600"><CheckCircle2 className="w-3.5 h-3.5" /> Your seat reserved</span>}
+                                        {booked && <span className="flex items-center gap-1 text-[#635BFF]"><CheckCircle2 className="w-3.5 h-3.5" /> Your seat reserved</span>}
                                     </div>
 
                                     <div className="p-5 space-y-5">
@@ -276,7 +280,7 @@ export default function SharedAutoPage() {
                                                 🧑‍✈️
                                             </div>
                                             <div className="flex-1">
-                                                <p className="font-bold text-gray-900 dark:text-white text-lg">{auto.driverName}</p>
+                                                <p className="font-bold text-[#111439] dark:text-white text-lg">{auto.driverName}</p>
                                                 <p className="text-sm text-gray-500">{auto.vehicleNumber} · Auto Rickshaw</p>
                                                 <div className="flex items-center gap-3 mt-1 text-xs">
                                                     <span className="flex items-center gap-1 text-amber-500 font-semibold">
@@ -290,19 +294,19 @@ export default function SharedAutoPage() {
                                         </div>
 
                                         {/* Route */}
-                                        <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-3 flex items-center gap-3 text-sm">
+                                        <div className="bg-[#111439]/5 dark:bg-white/5 rounded-2xl p-3 flex items-center gap-3 text-sm">
                                             <div className="flex flex-col items-center gap-1">
                                                 <div className="w-2 h-2 rounded-full bg-blue-400" />
                                                 <div className="w-0.5 h-6 bg-gray-300 dark:bg-white/20" />
-                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                <div className="w-2 h-2 rounded-full bg-[#635BFF]" />
                                             </div>
                                             <div className="flex-1">
-                                                <p className="font-semibold text-gray-800 dark:text-gray-100">{auto.from}</p>
-                                                <p className="font-semibold text-gray-800 dark:text-gray-100 mt-3">{auto.to}</p>
+                                                <p className="font-semibold text-[#111439] dark:text-gray-100">{auto.from}</p>
+                                                <p className="font-semibold text-[#111439] dark:text-gray-100 mt-3">{auto.to}</p>
                                             </div>
                                             <div className="text-right text-xs text-gray-500 space-y-1">
-                                                <div className="flex items-center gap-1 justify-end"><Clock className="w-3 h-3" />{auto.estimatedMinutes} min</div>
-                                                <div className="flex items-center gap-1 justify-end"><Ruler className="w-3 h-3" />{auto.distanceKm} km</div>
+                                                <div className="flex items-center gap-1 justify-end"><Clock className="w-3 h-3 text-[#635BFF]" />{auto.estimatedMinutes} min</div>
+                                                <div className="flex items-center gap-1 justify-end"><Ruler className="w-3 h-3 text-[#635BFF]" />{auto.distanceKm} km</div>
                                             </div>
                                         </div>
 
@@ -312,29 +316,29 @@ export default function SharedAutoPage() {
                                                 <p className="text-xs text-gray-400 mb-1.5">Seat availability</p>
                                                 <SeatDots total={auto.totalSeats} available={auto.availableSeats} />
                                                 <p className="text-xs text-gray-400 mt-1">
-                                                    <span className="font-semibold text-gray-700 dark:text-gray-200">{auto.availableSeats}</span> of {auto.totalSeats} seats free
+                                                    <span className="font-semibold text-[#111439] dark:text-gray-200">{auto.availableSeats}</span> of {auto.totalSeats} seats free
                                                 </p>
                                             </div>
                                             <div className="text-right">
                                                 <p className="text-xs text-gray-400">Fare per seat</p>
-                                                <p className="text-3xl font-bold text-[#07503E] dark:text-emerald-400 flex items-center justify-end">
-                                                    <IndianRupee className="w-6 h-6" />{auto.farePerSeat}
+                                                <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#635BFF] to-[#00D4FF] flex items-center justify-end">
+                                                    <IndianRupee className="w-6 h-6 text-[#635BFF]" />{auto.farePerSeat}
                                                 </p>
                                             </div>
                                         </div>
 
                                         {/* Passengers list */}
                                         {auto.passengers.length > 0 && (
-                                            <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-3">
+                                            <div className="bg-[#111439]/5 dark:bg-white/5 rounded-2xl p-3">
                                                 <p className="text-xs text-gray-400 font-semibold mb-2 uppercase tracking-wider">Co-passengers</p>
                                                 <div className="space-y-1.5">
                                                     {auto.passengers.map((p, i) => (
                                                         <div key={i} className="flex items-center gap-2 text-sm">
-                                                            <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                                                            <div className="w-6 h-6 rounded-full bg-[#635BFF]/10 dark:bg-[#635BFF]/30 flex items-center justify-center text-xs font-bold text-[#635BFF] dark:text-indigo-400">
                                                                 {p.userName.charAt(0).toUpperCase()}
                                                             </div>
-                                                            <span className="font-medium text-gray-700 dark:text-gray-200">{p.userName}</span>
-                                                            {p.userId === user?.id && <span className="text-xs text-emerald-500 font-semibold">(You)</span>}
+                                                            <span className="font-medium text-[#111439] dark:text-gray-200">{p.userName}</span>
+                                                            {p.userId === user?.id && <span className="text-xs text-[#635BFF] font-semibold">(You)</span>}
                                                         </div>
                                                     ))}
                                                 </div>
@@ -356,7 +360,7 @@ export default function SharedAutoPage() {
                                                         </button>
                                                         <button
                                                             onClick={() => navigate("/tracking", { state: { originStr: auto.from, destStr: auto.to } })}
-                                                            className="flex items-center gap-2 bg-[#07503E] text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-[#064031] transition-colors"
+                                                            className="flex items-center gap-2 bg-[#635BFF] text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-indigo-700 transition-colors shadow-md"
                                                         >
                                                             <Navigation className="w-4 h-4" /> Track
                                                         </button>
@@ -365,7 +369,7 @@ export default function SharedAutoPage() {
                                                     <button
                                                         onClick={() => handleBook(auto._id)}
                                                         disabled={!!actionLoading || full || auto.availableSeats === 0}
-                                                        className="w-full bg-[#07503E] hover:bg-[#064031] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2"
+                                                        className="w-full bg-[#111439] hover:bg-[#1a1f5c] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 rounded-2xl transition-colors flex items-center justify-center gap-2 shadow-lg"
                                                     >
                                                         {actionLoading === auto._id + "-book" ? (
                                                             <RefreshCw className="w-4 h-4 animate-spin" />
@@ -393,7 +397,7 @@ export default function SharedAutoPage() {
                 <div className="text-center pt-4">
                     <button
                         onClick={handleReset}
-                        className="text-xs text-gray-400 hover:text-gray-600 border border-dashed border-gray-200 dark:border-white/10 px-4 py-2 rounded-xl transition-colors"
+                        className="text-xs text-gray-400 hover:text-[#111439] dark:hover:text-white border border-dashed border-gray-200 dark:border-white/10 px-4 py-2 rounded-xl transition-colors"
                     >
                         🔄 Reset Ramesh's Auto (Demo)
                     </button>

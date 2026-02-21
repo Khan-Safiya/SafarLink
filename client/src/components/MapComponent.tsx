@@ -113,7 +113,7 @@ function MapComponent({ isLoaded, directions, simulationLocation, currentStepTyp
                     options={{
                         suppressMarkers: idx !== 0,
                         polylineOptions: {
-                            strokeColor: idx === 0 ? "#07503E" : idx === 1 ? "#16A34A" : "#2563EB",
+                            strokeColor: idx === 0 ? "#635BFF" : idx === 1 ? "#00D4FF" : "#2563EB",
                             strokeWeight: idx === 0 ? 7 : 4,
                             strokeOpacity: idx === 0 ? 0.9 : 0.5,
                             zIndex: idx === 0 ? 10 : 3,

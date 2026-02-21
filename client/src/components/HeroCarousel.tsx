@@ -61,7 +61,7 @@ export default function HeroCarousel() {
                             {images.map((_, idx) => (
                                 <div
                                     key={idx}
-                                    className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-8 bg-[#2FCE65]' : 'w-2 bg-white/50'}`}
+                                    className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentIndex ? 'w-8 bg-[#635BFF]' : 'w-2 bg-white/50'}`}
                                 />
                             ))}
                         </div>

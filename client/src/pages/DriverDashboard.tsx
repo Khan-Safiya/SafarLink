@@ -27,7 +27,9 @@ export default function DriverDashboard() {
     const [isOnline, setIsOnline] = useState(false);
 
     return (
-        <div className="min-h-screen font-sans bg-gray-50 dark:bg-background transition-colors duration-500 overflow-x-hidden">
+        <div className="min-h-screen font-sans bg-[#F8F8F9] dark:bg-background transition-colors duration-500 overflow-x-hidden relative">
+            <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#B366FF] rounded-full blur-[140px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+            <div className="absolute top-[20%] left-[-10%] w-[400px] h-[400px] bg-[#47B3FF] rounded-full blur-[120px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
             <Navbar
                 isWomenOnly={isWomenOnly}
                 setIsWomenOnly={setIsWomenOnly}
@@ -40,10 +42,10 @@ export default function DriverDashboard() {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[#07503E] dark:text-white mb-2">
+                        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[#111439] dark:text-white mb-2">
                             Driver Command Center
                         </h1>
-                        <p className="text-[#07503E]/70 dark:text-muted-foreground">
+                        <p className="text-[#111439]/70 dark:text-muted-foreground">
                             Welcome back, Rajesh. Your vehicle verified status is <span className="text-amber-500 font-bold">Pending</span>.
                         </p>
                     </div>
@@ -67,11 +69,11 @@ export default function DriverDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {EARNINGS_DATA.map((item, idx) => (
                                 <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
-                                    <Card className="border-l-4 border-l-[#2FCE65]">
+                                    <Card className="border-l-4 border-l-[#635BFF] relative overflow-hidden bg-white/80 backdrop-blur-sm z-10">
                                         <CardContent className="p-5">
                                             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{item.label}</p>
-                                            <p className="text-2xl font-bold text-[#07503E] dark:text-white">₹{item.amount}</p>
-                                            <p className="text-xs text-[#07503E]/60 dark:text-gray-400 mt-1">{item.rides} rides completed</p>
+                                            <p className="text-2xl font-bold text-[#111439] dark:text-white">₹{item.amount}</p>
+                                            <p className="text-xs text-[#111439]/60 dark:text-gray-400 mt-1">{item.rides} rides completed</p>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -79,10 +81,10 @@ export default function DriverDashboard() {
                         </div>
 
                         {/* Demand Heatmap */}
-                        <Card className="overflow-hidden border-2 border-[#07503E]/5 dark:border-white/10">
-                            <CardHeader className="bg-gray-50/50 dark:bg-white/5">
-                                <CardTitle className="flex justify-between items-center text-[#07503E] dark:text-white">
-                                    <span className="flex items-center gap-2"><Map className="w-5 h-5" /> Live Demand Map</span>
+                        <Card className="overflow-hidden border-2 border-[#111439]/5 dark:border-white/10 z-10 relative bg-white/80 backdrop-blur-sm">
+                            <CardHeader className="bg-[#F8F8F9]/50 dark:bg-white/5">
+                                <CardTitle className="flex justify-between items-center text-[#111439] dark:text-white">
+                                    <span className="flex items-center gap-2"><Map className="w-5 h-5 text-[#635BFF]" /> Live Demand Map</span>
                                     <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 animate-pulse">High Demand</Badge>
                                 </CardTitle>
                             </CardHeader>
@@ -96,9 +98,9 @@ export default function DriverDashboard() {
                                     <h4 className="font-bold text-sm text-gray-500 mb-3 uppercase tracking-wider">Nearby Hotspots</h4>
                                     <div className="space-y-3">
                                         {HEATMAP_ZONES.map((zone, idx) => (
-                                            <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-white/5 hover:bg-gray-100 transition-colors cursor-pointer">
+                                            <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-[#F8F8F9] dark:bg-white/5 hover:bg-white transition-colors cursor-pointer border border-[#111439]/5">
                                                 <div>
-                                                    <p className="font-bold text-[#07503E] dark:text-white">{zone.area}</p>
+                                                    <p className="font-bold text-[#111439] dark:text-white">{zone.area}</p>
                                                     <p className="text-xs text-gray-500">{zone.distance} away</p>
                                                 </div>
                                                 <div className="text-right">
@@ -117,12 +119,13 @@ export default function DriverDashboard() {
                     <div className="space-y-8">
                         <VerificationStatusStepper />
 
-                        <Card className="bg-[#07503E] text-white overflow-hidden relative">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#2FCE65] rounded-full blur-[60px] opacity-20"></div>
+                        <Card className="bg-gradient-to-br from-[#111439] to-[#1a1f5c] text-white overflow-hidden relative shadow-xl z-10">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#635BFF] rounded-full blur-[60px] opacity-40"></div>
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#00D4FF] rounded-full blur-[60px] opacity-30"></div>
                             <CardContent className="p-6 relative z-10">
                                 <h3 className="font-bold text-xl mb-2">Refer a Driver</h3>
                                 <p className="text-white/70 text-sm mb-4">Earn ₹500 for every verified driver you refer to SafarLink.</p>
-                                <Button className="w-full bg-white text-[#07503E] hover:bg-gray-100 font-bold">
+                                <Button className="w-full bg-white text-[#111439] hover:bg-[#F8F8F9] font-bold shadow-md">
                                     Share Referral Code
                                 </Button>
                             </CardContent>

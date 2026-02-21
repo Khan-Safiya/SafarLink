@@ -124,7 +124,7 @@ function RouteCard({ route, index, activeMode }: { route: Route; index: number; 
 
     return (
         <Card
-            className="overflow-hidden border-2 border-transparent hover:border-[#2FCE65] hover:shadow-lg hover:shadow-[#2FCE65]/10 cursor-pointer transition-all duration-300 bg-white dark:bg-card"
+            className="overflow-hidden border-2 border-transparent hover:border-[#635BFF] hover:shadow-lg hover:shadow-[#635BFF]/10 cursor-pointer transition-all duration-300 bg-white/80 backdrop-blur-sm dark:bg-card"
             onClick={handleClick}
         >
             <CardContent className="p-0">
@@ -138,7 +138,7 @@ function RouteCard({ route, index, activeMode }: { route: Route; index: number; 
                                 </Badge>
                             )}
                             {index === 1 && (
-                                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200">
+                                <Badge className="bg-[#635BFF]/10 text-[#635BFF] hover:bg-[#635BFF]/20 border-[#635BFF]/30">
                                     💰 Cheapest
                                 </Badge>
                             )}
@@ -159,7 +159,7 @@ function RouteCard({ route, index, activeMode }: { route: Route; index: number; 
                         <MapPin className="w-3 h-3 shrink-0 text-blue-400" />
                         <span className="truncate">{route.origin}</span>
                         <ArrowRight className="w-3 h-3 mx-0.5 shrink-0" />
-                        <MapPin className="w-3 h-3 shrink-0 text-[#2FCE65]" />
+                        <MapPin className="w-3 h-3 shrink-0 text-[#635BFF]" />
                         <span className="truncate">{route.destination}</span>
                     </div>
 
@@ -176,13 +176,13 @@ function RouteCard({ route, index, activeMode }: { route: Route; index: number; 
                         </div>
 
                         {/* Steps */}
-                        <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
-                            <div className="flex items-center gap-2 mb-1 text-emerald-600 dark:text-emerald-400">
+                        <div className="p-3 bg-[#635BFF]/5 dark:bg-[#635BFF]/10 rounded-xl border border-[#635BFF]/10 dark:border-[#635BFF]/20">
+                            <div className="flex items-center gap-2 mb-1 text-[#635BFF] dark:text-[#635BFF]">
                                 <List className="w-3.5 h-3.5" />
                                 <span className="text-xs font-medium">Steps</span>
                             </div>
-                            <p className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">{route.steps.length}</p>
-                            <p className="text-[10px] text-emerald-700/60 dark:text-emerald-300/60">segments</p>
+                            <p className="font-bold text-[#111439] dark:text-white text-sm">{route.steps.length}</p>
+                            <p className="text-[10px] text-[#635BFF]/80 dark:text-[#635BFF]/60">segments</p>
                         </div>
 
                         {/* Modes */}
@@ -258,7 +258,7 @@ function FareRow({ fare, rank }: { fare: FareOption; rank?: number }) {
                 </p>
             </div>
             <div className="text-right shrink-0">
-                <p className="text-sm font-bold text-[#07503E] dark:text-emerald-400 flex items-center gap-0.5 justify-end">
+                <p className="text-sm font-bold text-[#111439] dark:text-white flex items-center gap-0.5 justify-end">
                     <IndianRupee className="w-3 h-3" />
                     {fare.estimated_fare_inr}
                 </p>
@@ -291,7 +291,7 @@ function HighlightFareCard({
             <p className="text-xs text-gray-500 dark:text-gray-400">
                 {fare.distance_km} km · {fare.duration_minutes} min
             </p>
-            <p className="text-lg font-extrabold text-[#07503E] dark:text-emerald-400 flex items-center gap-0.5 mt-auto">
+            <p className="text-lg font-extrabold text-[#111439] dark:text-white flex items-center gap-0.5 mt-auto">
                 <IndianRupee className="w-4 h-4" />
                 {fare.estimated_fare_inr}
             </p>
@@ -332,7 +332,7 @@ function FaresPanel({ fares }: { fares: Root["fares"] }) {
                     <button
                         onClick={() => setFareView("cost")}
                         className={`px-3 py-1.5 transition-colors ${fareView === "cost"
-                            ? "bg-[#07503E] text-white"
+                            ? "bg-[#111439] text-white"
                             : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
                             }`}
                     >
@@ -342,7 +342,7 @@ function FaresPanel({ fares }: { fares: Root["fares"] }) {
                     <button
                         onClick={() => setFareView("speed")}
                         className={`px-3 py-1.5 transition-colors ${fareView === "speed"
-                            ? "bg-[#07503E] text-white"
+                            ? "bg-[#111439] text-white"
                             : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
                             }`}
                     >
@@ -358,7 +358,7 @@ function FaresPanel({ fares }: { fares: Root["fares"] }) {
                     fare={fares.cheapest}
                     label="Cheapest"
                     icon={<TrendingDown className="w-3 h-3" />}
-                    accent="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                    accent="bg-[#635BFF]/5 dark:bg-[#635BFF]/10 border-[#635BFF]/20 dark:border-[#635BFF]/30 text-[#635BFF] dark:text-indigo-400"
                 />
                 <HighlightFareCard
                     fare={fares.fastest}
@@ -534,7 +534,7 @@ function AiTopPicks({ fares, routes }: { fares: Root["fares"]; routes: Root["rou
                                 <Ruler className="w-3.5 h-3.5 text-gray-400" />
                                 <span className="font-semibold">{fare.distance_km} km</span>
                             </div>
-                            <div className="flex items-center gap-1 text-[#07503E] dark:text-emerald-400">
+                            <div className="flex items-center gap-1 text-[#111439] dark:text-[#00D4FF]">
                                 <IndianRupee className="w-3.5 h-3.5" />
                                 <span className="font-bold text-sm">{fare.estimated_fare_inr}</span>
                             </div>
@@ -629,9 +629,16 @@ export default function AiRoutePlanner() {
         <div
             className={`relative min-h-screen font-sans transition-colors duration-500 flex flex-col overflow-x-hidden ${isWomenOnly
                 ? "bg-pink-50 dark:bg-[#831843]"
-                : "bg-[#F4FDF7] dark:bg-background"
+                : "bg-[#F8F8F9] dark:bg-background"
                 }`}
         >
+            {/* Stripe Gradient Blobs */}
+            {!isWomenOnly && (
+                <>
+                    <div className="absolute top-[-5%] right-[-5%] w-[400px] h-[400px] bg-[#635BFF] rounded-full blur-[140px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                    <div className="absolute top-[40%] left-[-10%] w-[300px] h-[300px] bg-[#00D4FF] rounded-full blur-[120px] opacity-20 mix-blend-multiply z-0 pointer-events-none"></div>
+                </>
+            )}
             <Navbar
                 isWomenOnly={isWomenOnly}
                 setIsWomenOnly={setIsWomenOnly}
@@ -651,7 +658,7 @@ export default function AiRoutePlanner() {
                             <Bot className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-[#07503E] dark:text-white">
+                            <h1 className="text-2xl font-bold text-[#111439] dark:text-white">
                                 AI Route Planner
                             </h1>
                             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -666,9 +673,9 @@ export default function AiRoutePlanner() {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.08 }}
-                    className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm p-4 flex gap-3"
+                    className="bg-white/80 backdrop-blur-md dark:bg-card rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm p-4 flex gap-3"
                 >
-                    <div className="flex-1 flex items-center gap-3 bg-gray-50 dark:bg-black/20 rounded-xl px-4 py-2.5 border border-gray-200 dark:border-white/10 focus-within:border-[#2FCE65] transition-colors">
+                    <div className="flex-1 flex items-center gap-3 bg-gray-50/50 dark:bg-black/20 rounded-xl px-4 py-2.5 border border-gray-200 dark:border-white/10 focus-within:border-[#635BFF] transition-colors">
                         <Search className="w-5 h-5 text-gray-400 shrink-0" />
                         <input
                             type="text"
@@ -684,7 +691,7 @@ export default function AiRoutePlanner() {
                         whileTap={{ scale: 0.96 }}
                         onClick={handleSearch}
                         disabled={loading || !query.trim()}
-                        className="px-6 py-2.5 rounded-xl bg-[#07503E] hover:bg-[#064031] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-[#07503E]/20 transition-all flex items-center gap-2"
+                        className="px-6 py-2.5 rounded-xl bg-[#111439] hover:bg-[#1a1f5c] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-[#111439]/20 transition-all flex items-center gap-2"
                     >
                         {loading ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -746,7 +753,7 @@ export default function AiRoutePlanner() {
                                 <MapPin className="w-4 h-4 text-blue-400 shrink-0" />
                                 <span className="truncate">{result.routes.origin}</span>
                                 <ArrowRight className="w-4 h-4 shrink-0" />
-                                <MapPin className="w-4 h-4 text-[#2FCE65] shrink-0" />
+                                <MapPin className="w-4 h-4 text-[#635BFF] shrink-0" />
                                 <span className="truncate">{result.routes.destination}</span>
                             </div>
 
@@ -818,7 +825,7 @@ export default function AiRoutePlanner() {
             {/* Background gradients */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] bg-indigo-500/5 dark:bg-indigo-500/10" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] bg-[#2FCE65]/5 dark:bg-[#2FCE65]/10" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[120px] bg-[#00D4FF]/5 dark:bg-[#00D4FF]/10" />
             </div>
         </div>
     );

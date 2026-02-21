@@ -18,7 +18,7 @@ export default function ShareTrackingWidget() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline" className="gap-2 border-dashed border-[#07503E]/30 text-[#07503E] hover:bg-[#07503E]/5 dark:border-white/30 dark:text-white dark:hover:bg-white/5">
+                <Button variant="outline" className="gap-2 border-dashed border-[#111439]/30 text-[#111439] hover:bg-[#111439]/5 dark:border-white/30 dark:text-white dark:hover:bg-white/5">
                     <Share2 className="w-4 h-4" />
                     Share Ride Details
                 </Button>
