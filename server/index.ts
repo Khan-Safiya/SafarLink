@@ -35,6 +35,9 @@ import userRoutes from './routes/users';
 import routesRouter from './routes/routes';
 import rideRoutes from './routes/rides';
 import sharedAutoRoutes from './routes/sharedAutos';
+import incidentRoutes from './routes/incidents';
+import sharedAutoV2Routes from './routes/sharedAutoV2';
+import poolRidesRoutes from './routes/poolRides';
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
@@ -43,6 +46,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/routes', routesRouter);
 app.use('/api/rides', rideRoutes);
 app.use('/api/shared-autos', sharedAutoRoutes);
+app.use('/api/incidents', incidentRoutes);
+app.use('/api/shared-autos/v2', sharedAutoV2Routes);
+app.use('/api/pool-rides', poolRidesRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Last Mile Connectivity API is running');

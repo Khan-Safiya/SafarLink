@@ -5,7 +5,6 @@ import { useJsApiLoader } from '@react-google-maps/api';
 import MapComponent from "../components/MapComponent";
 import RouteCard from "../components/RouteCard";
 import type { RouteOption } from "../components/RouteCard";
-import SOSButton from "../components/SOSButton";
 import api, { setupInterceptors } from "../api/axios";
 import Navbar from "../components/Navbar";
 import { motion } from "framer-motion";
@@ -387,7 +386,6 @@ export default function Dashboard() {
                 </div>
             </main>
 
-            <SOSButton />
 
             {/* Background Gradients */}
             <div className="fixed inset-0 pointer-events-none z-0">

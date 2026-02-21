@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Navigation, Leaf, ShieldCheck, MapPin } from "lucide-react";
+import { ArrowLeft, Clock, Navigation, Leaf, ShieldCheck, MapPin, Ticket } from "lucide-react";
 import JourneyTimeline from "../components/JourneyTimeline";
 import Navbar from "../components/Navbar";
 import { useState } from "react";
@@ -108,14 +108,40 @@ export default function RouteDetails() {
 
             {/* Fixed Action Footer */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-black/80 backdrop-blur-md border-t border-gray-200 dark:border-white/10 z-50">
-                <div className="max-w-3xl mx-auto flex gap-4 items-center">
+                <div className="max-w-3xl mx-auto flex gap-3 items-center">
                     <div className="hidden sm:block flex-grow">
                         <p className="text-sm font-medium text-gray-900 dark:text-white">Ready to depart?</p>
                         <p className="text-xs text-gray-500">Live safety tracking will activate automatically.</p>
                     </div>
+                    {/* Book Tickets */}
                     <Button
-                        onClick={() => navigate('/tracking', { state: { route, origin: originCoords, destination: destCoords } })}
-                        className="w-full sm:w-auto px-8 bg-[#2FCE65] hover:bg-[#25A952] text-white flex gap-2 shadow-lg shadow-[#2FCE65]/20 h-12 text-lg font-bold"
+                        onClick={() => navigate('/booking', {
+                            state: {
+                                origin: originStr,
+                                destination: destStr,
+                                routeType: route.type,
+                                fareInr: route.price,
+                                segments: route.segments ?? [],
+                            }
+                        })}
+                        variant="outline"
+                        className="px-5 h-12 font-bold border-[#07503E] text-[#07503E] hover:bg-[#07503E] hover:text-white transition-colors flex gap-2"
+                    >
+                        <Ticket className="w-4 h-4" />
+                        Book Tickets
+                    </Button>
+                    {/* Start Journey */}
+                    <Button
+                        onClick={() => navigate('/tracking', {
+                            state: {
+                                route,
+                                origin: originCoords,
+                                destination: destCoords,
+                                originStr,
+                                destStr,
+                            }
+                        })}
+                        className="flex-1 sm:flex-none px-8 bg-[#2FCE65] hover:bg-[#25A952] text-white flex gap-2 shadow-lg shadow-[#2FCE65]/20 h-12 text-lg font-bold"
                     >
                         <Navigation className="w-5 h-5" />
                         Start Journey

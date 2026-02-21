@@ -9,6 +9,10 @@ import Landing from "./pages/Landing";
 import { SocketProvider } from "./context/SocketContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import RouteDetails from "./pages/RouteDetails";
+import AiRoutePlanner from "./pages/AiRoutePlanner";
+import BookingPage from "./pages/BookingPage";
+import AppAssistantChat from "./components/AppAssistantChat";
+import SharedAutoPage from "./pages/SharedAutoPage";
 
 function App() {
   return (
@@ -97,6 +101,45 @@ function App() {
               }
             />
             <Route
+              path="/ai-route"
+              element={
+                <>
+                  <SignedIn>
+                    <AiRoutePlanner />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/shared-auto"
+              element={
+                <>
+                  <SignedIn>
+                    <SharedAutoPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/booking"
+              element={
+                <>
+                  <SignedIn>
+                    <BookingPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
               path="/sign-up/*"
               element={
                 <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -105,6 +148,10 @@ function App() {
               }
             />
           </Routes>
+          {/* SafarLink App Assistant — available on every signed-in page */}
+          <SignedIn>
+            <AppAssistantChat />
+          </SignedIn>
         </BrowserRouter>
       </SocketProvider>
     </ThemeProvider>

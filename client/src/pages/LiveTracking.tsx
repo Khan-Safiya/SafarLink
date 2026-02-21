@@ -1,117 +1,344 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Navbar from "../components/Navbar";
 import MapComponent from "../components/MapComponent";
 import { useJsApiLoader } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Phone, AlertCircle } from "lucide-react";
+import { Phone, AlertCircle, X, AlertTriangle, RefreshCw, Navigation2 } from "lucide-react";
 import SOSButton from "../components/SOSButton";
 import ShareTrackingWidget from "../components/ShareTrackingWidget";
 import SafetyMonitor from "../components/SafetyMonitor";
 import JourneyChecklist from "../components/JourneyChecklist";
+import IncidentReporter, { type Incident } from "../components/IncidentReporter";
 import { useLocation } from "react-router-dom";
+import { useSocket } from "../context/SocketContext";
+import { motion, AnimatePresence } from "framer-motion";
 
+const SERVER = "http://localhost:5000";
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
+
+function buildRouteId(a: string, b: string) {
+    return `${a}||${b}`.toLowerCase().replace(/\s+/g, '-').slice(0, 80);
+}
+
+const INCIDENT_LABELS: Record<string, { label: string; emoji: string }> = {
+    road_blocked: { label: "Road Blocked", emoji: "🚧" },
+    accident: { label: "Accident", emoji: "💥" },
+    waterlogging: { label: "Waterlogging", emoji: "🌊" },
+    police_naka: { label: "Police Naka", emoji: "🚔" },
+    oil_spill: { label: "Oil Spill", emoji: "🛢️" },
+    other: { label: "Incident Ahead", emoji: "⚠️" },
+};
+
+// ── Haversine distance (km) between two lat/lng points ───────────────────────
+function haversineKm(a: google.maps.LatLngLiteral, b: google.maps.LatLngLiteral) {
+    const R = 6371;
+    const dLat = (b.lat - a.lat) * Math.PI / 180;
+    const dLng = (b.lng - a.lng) * Math.PI / 180;
+    const x = Math.sin(dLat / 2) ** 2 +
+        Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+// Min distance (km) from a route's overview path to a given point
+function minDistToPoint(route: google.maps.DirectionsRoute, pt: google.maps.LatLngLiteral): number {
+    const path = route.overview_path;
+    let min = Infinity;
+    for (const p of path) {
+        const d = haversineKm({ lat: p.lat(), lng: p.lng() }, pt);
+        if (d < min) min = d;
+    }
+    return min;
+}
+
+// Pick the alternative route that stays furthest from all incident points
+function pickSafestRoute(
+    result: google.maps.DirectionsResult,
+    incidents: Array<{ lat: number; lng: number }>
+): google.maps.DirectionsResult {
+    if (!incidents.length || result.routes.length <= 1) return result;
+    let bestIdx = 0;
+    let bestScore = -Infinity;
+    for (let i = 0; i < result.routes.length; i++) {
+        // Score = minimum distance to ANY incident point across ALL path points
+        const score = Math.min(...incidents.map(inc =>
+            minDistToPoint(result.routes[i], { lat: inc.lat, lng: inc.lng })
+        ));
+        if (score > bestScore) { bestScore = score; bestIdx = i; }
+    }
+    if (bestIdx === 0) return result;
+    // Swap chosen route to index 0 so DirectionsRenderer shows it as primary
+    const routes = [...result.routes];
+    [routes[0], routes[bestIdx]] = [routes[bestIdx], routes[0]];
+    return { ...result, routes };
+}
 
 export default function LiveTracking() {
     const [isWomenOnly, setIsWomenOnly] = useState(false);
     const [isDriverMode, setIsDriverMode] = useState(false);
 
-    // Route tracking state
-    const location = useLocation();
-    const { route, origin, destination } = location.state || {};
+    const locationState = useLocation();
+    const { route, origin, destination, originStr, destStr } = locationState.state || {};
+
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    const { isLoaded } = useJsApiLoader({ id: 'google-map-script', googleMapsApiKey: apiKey || "", libraries });
+
     const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [markerLocation, setMarkerLocation] = useState<google.maps.LatLngLiteral | null>(null);
 
-    // Safety Status State
+    // ── GPS tracking ──────────────────────────────────────────────────────────
+    // Use real device GPS via watchPosition. Fallback simulation only when
+    // geolocation is unavailable (desktop/browser denied).
+    const [markerLocation, setMarkerLocation] = useState<google.maps.LatLngLiteral | null>(null);
+    const [usingSimulation, setUsingSimulation] = useState(false);
+    const watchRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (!navigator.geolocation) {
+            setUsingSimulation(true);
+            return;
+        }
+        // Try to get real GPS first
+        navigator.geolocation.getCurrentPosition(
+            () => {
+                // GPS available — watch position
+                watchRef.current = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        setMarkerLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                    },
+                    () => setUsingSimulation(true), // denied mid-watch
+                    { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+                );
+            },
+            () => setUsingSimulation(true), // denied on first ask
+            { enableHighAccuracy: true, timeout: 5000 }
+        );
+        return () => {
+            if (watchRef.current !== null) navigator.geolocation.clearWatch(watchRef.current);
+        };
+    }, []);
+
+    // ── Simulation fallback (only when GPS is unavailable) ───────────────────
+    useEffect(() => {
+        if (!usingSimulation || !directions || !route?.steps) return;
+
+        const path = directions.routes[0].overview_path;
+        if (!path?.length) return;
+
+        let startTime: number | null = null;
+        const duration = 20000;
+        let frame: number;
+
+        const animate = (time: number) => {
+            if (!startTime) startTime = time;
+            const progress = Math.min((time - startTime) / duration, 1);
+            const idx = Math.min(Math.floor(progress * path.length), path.length - 1);
+            const pt = path[idx];
+            if (pt) setMarkerLocation({ lat: pt.lat(), lng: pt.lng() });
+            const step = Math.min(Math.floor(progress * route.steps.length), route.steps.length);
+            setCurrentStepIndex(step);
+            if (progress < 1) frame = requestAnimationFrame(animate);
+        };
+        frame = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(frame);
+    }, [usingSimulation, directions, route]);
+
+    // ── Safety state ──────────────────────────────────────────────────────────
     const [safetyStatus, setSafetyStatus] = useState<'safe' | 'deviated' | 'stopped'>('safe');
 
-    // Simulate auto route deviation when user is on 'auto' segment
     useEffect(() => {
         if (route?.steps?.[currentStepIndex]?.type === 'auto' && safetyStatus === 'safe') {
-            const timer = setTimeout(() => {
-                // Determine we are 500m off route
-                setSafetyStatus('deviated');
-            }, 3000); // Trigger 3 seconds into the auto segment simulation
-            return () => clearTimeout(timer);
+            const t = setTimeout(() => setSafetyStatus('deviated'), 3000);
+            return () => clearTimeout(t);
         }
     }, [currentStepIndex, route, safetyStatus]);
 
     const handleSafe = () => setSafetyStatus('safe');
     const handleCall = () => window.location.href = 'tel:+917385875052';
 
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    const { isLoaded } = useJsApiLoader({ id: 'google-map-script', googleMapsApiKey: apiKey || "", libraries });
+    // ── Incident state ────────────────────────────────────────────────────────
+    const [activeIncidents, setActiveIncidents] = useState<Incident[]>([]);
+    const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+    const [showRerouteAlert, setShowRerouteAlert] = useState(false);
+    const [rerouteIncident, setRerouteIncident] = useState<Incident | null>(null);
+    const [rerouteLoading, setRerouteLoading] = useState(false);
 
-    // Fetch Directions for the path
+    const { socket, joinRouteWatch, leaveRouteWatch, reportIncident } = useSocket();
+
+    const routeId = buildRouteId(originStr || origin || "A", destStr || destination || "B");
+
+    // ── FETCH existing active incidents on mount (persists after reload) ──────
     useEffect(() => {
-        if (isLoaded && origin && destination && window.google) {
-            const directionsService = new google.maps.DirectionsService();
-            directionsService.route({
-                origin,
-                destination,
-                travelMode: google.maps.TravelMode.DRIVING
-            }, (result, status) => {
-                if (status === google.maps.DirectionsStatus.OK && result) {
-                    setDirections(result);
-                }
-            });
-        }
-    }, [isLoaded, origin, destination]);
+        fetch(`${SERVER}/api/incidents?routeId=${encodeURIComponent(routeId)}`)
+            .then(r => r.json())
+            .then((data: any[]) => {
+                const mapped: Incident[] = data.map(d => ({
+                    id: d._id,
+                    lat: d.lat,
+                    lng: d.lng,
+                    type: d.type,
+                    description: d.description,
+                    routeId: d.routeId,
+                    reportedBy: d.reportedBy,
+                    severity: d.severity,
+                    createdAt: d.createdAt,
+                }));
+                setActiveIncidents(mapped);
+            })
+            .catch(() => { /* offline gracefully */ });
+    }, [routeId]);
 
-    // Live Tracking Simulation Loop
+    // ── Join socket route room ────────────────────────────────────────────────
     useEffect(() => {
-        if (!directions || !route?.steps) return;
+        joinRouteWatch(routeId);
+        return () => leaveRouteWatch(routeId);
+    }, [routeId]);
 
-        const path = directions.routes[0].overview_path;
-        if (!path || path.length === 0) return;
+    // ── Real-time socket incident events ──────────────────────────────────────
+    useEffect(() => {
+        if (!socket) return;
 
-        let startTime: number | null = null;
-        const duration = 20000; // 20 seconds for the entire journey demo
-        let animationFrame: number;
-
-        const animate = (time: number) => {
-            if (!startTime) startTime = time;
-            const elapsed = time - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-
-            // Interpolate position on path
-            const pointIndex = Math.min(Math.floor(progress * path.length), path.length - 1);
-            const point = path[pointIndex];
-            if (point) {
-                setMarkerLocation({ lat: point.lat(), lng: point.lng() });
-            }
-
-            // Update step index based on progress
-            const totalSteps = route.steps.length;
-            const currentStep = Math.min(Math.floor(progress * totalSteps), totalSteps);
-            setCurrentStepIndex(currentStep);
-
-            if (progress < 1) {
-                animationFrame = requestAnimationFrame(animate);
-            } else {
-                setMarkerLocation({ lat: path[path.length - 1].lat(), lng: path[path.length - 1].lng() });
-                setCurrentStepIndex(totalSteps);
+        const handleAlert = (incident: Incident) => {
+            setActiveIncidents(prev =>
+                prev.find(i => i.id === incident.id) ? prev : [incident, ...prev]
+            );
+            if (["road_blocked", "accident"].includes(incident.type)) {
+                setRerouteIncident(incident);
+                setShowRerouteAlert(true);
             }
         };
 
-        animationFrame = requestAnimationFrame(animate);
+        const handleResolved = ({ incidentId }: { incidentId: string }) =>
+            setActiveIncidents(prev => prev.filter(i => i.id !== incidentId));
 
-        return () => cancelAnimationFrame(animationFrame);
-    }, [directions, route]);
+        socket.on('incident_alert', handleAlert);
+        socket.on('incident_resolved', handleResolved);
+        return () => {
+            socket.off('incident_alert', handleAlert);
+            socket.off('incident_resolved', handleResolved);
+        };
+    }, [socket]);
 
-    // apiKey already declared
+    // ── Reroute helper — fetches alternatives, picks route avoiding incidents ──
+    const doReroute = useCallback(() => {
+        if (!isLoaded || !origin || !destination) return;
+        if (typeof window === 'undefined' || !window.google?.maps) return;
+        setRerouteLoading(true);
+        const ds = new window.google.maps.DirectionsService();
+        ds.route(
+            {
+                origin,
+                destination,
+                travelMode: window.google.maps.TravelMode.DRIVING,
+                provideRouteAlternatives: true,   // ask Google for alt routes
+                avoidFerries: true,
+            },
+            (result, status) => {
+                setRerouteLoading(false);
+                if (status === window.google.maps.DirectionsStatus.OK && result) {
+                    // Pick the route that stays furthest from active incidents
+                    const safe = pickSafestRoute(result, activeIncidents);
+                    setDirections(safe);
+                    setShowRerouteAlert(false);
+                } else {
+                    console.warn('Reroute failed:', status);
+                }
+            }
+        );
+    }, [isLoaded, origin, destination, activeIncidents]);
+
+    // ── Reporter callback — auto-reroute for the person who reported it ───────
+    const handleReport = useCallback((incident: Incident) => {
+        const enriched: Incident = { ...incident, routeId };
+        reportIncident(enriched);
+        setActiveIncidents(prev => [enriched, ...prev]);
+        // AUTO-REROUTE immediately for the reporter
+        if (["road_blocked", "accident"].includes(incident.type)) {
+            doReroute();
+        }
+    }, [routeId, reportIncident, doReroute]);
+
+    // ── Directions initial fetch ──────────────────────────────────────────────
+    useEffect(() => {
+        if (!isLoaded || !origin || !destination) return;
+        if (typeof window === 'undefined' || !window.google?.maps) return;
+        const ds = new window.google.maps.DirectionsService();
+        ds.route(
+            { origin, destination, travelMode: window.google.maps.TravelMode.DRIVING, provideRouteAlternatives: true },
+            (result, status) => {
+                if (status === window.google.maps.DirectionsStatus.OK && result) setDirections(result);
+            }
+        );
+    }, [isLoaded, origin, destination]);
+
+    const visibleIncidents = activeIncidents.filter(i => !dismissedIds.has(i.id));
 
     return (
         <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F4FDF7] dark:bg-background'}`}>
-            <Navbar
-                isWomenOnly={isWomenOnly}
-                setIsWomenOnly={setIsWomenOnly}
-                isDriverMode={isDriverMode}
-                setIsDriverMode={setIsDriverMode}
-            />
+            <Navbar isWomenOnly={isWomenOnly} setIsWomenOnly={setIsWomenOnly} isDriverMode={isDriverMode} setIsDriverMode={setIsDriverMode} />
+
+            {/* ── Auto‑reroute alert banner (shown to ALL users on same route) ── */}
+            <AnimatePresence>
+                {showRerouteAlert && rerouteIncident && (
+                    <motion.div
+                        initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -80, opacity: 0 }}
+                        className="fixed top-16 left-0 right-0 z-[998] flex justify-center px-4 pt-2"
+                    >
+                        <div className="bg-red-600 text-white rounded-2xl shadow-2xl p-4 max-w-lg w-full flex items-center gap-4">
+                            <AlertTriangle className="w-8 h-8 shrink-0 animate-pulse" />
+                            <div className="flex-1 min-w-0">
+                                <p className="font-bold text-sm">
+                                    {INCIDENT_LABELS[rerouteIncident.type]?.emoji}&nbsp;
+                                    {INCIDENT_LABELS[rerouteIncident.type]?.label} Reported Ahead!
+                                </p>
+                                <p className="text-xs text-red-100">
+                                    {rerouteIncident.description || "Another user flagged an issue. Tap Reroute for a safer path."}
+                                </p>
+                            </div>
+                            <div className="flex gap-2 shrink-0">
+                                <button
+                                    onClick={doReroute}
+                                    disabled={rerouteLoading}
+                                    className="flex items-center gap-1 bg-white text-red-600 font-bold text-xs px-3 py-1.5 rounded-xl hover:bg-red-50 disabled:opacity-60"
+                                >
+                                    <RefreshCw className={`w-3 h-3 ${rerouteLoading ? 'animate-spin' : ''}`} />
+                                    Reroute
+                                </button>
+                                <button onClick={() => setShowRerouteAlert(false)} className="text-red-200 hover:text-white">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ── Floating incident chips (top-right) ─────────────────────────── */}
+            <AnimatePresence>
+                {visibleIncidents.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        className="fixed top-[5.5rem] right-4 z-[997] space-y-2 pointer-events-none"
+                    >
+                        {visibleIncidents.slice(0, 2).map(inc => (
+                            <motion.div
+                                key={inc.id}
+                                initial={{ x: 60, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 60, opacity: 0 }}
+                                className="pointer-events-auto bg-orange-500 text-white rounded-2xl px-3 py-2 flex items-center gap-2 shadow-lg max-w-[220px]"
+                            >
+                                <span>{INCIDENT_LABELS[inc.type]?.emoji ?? "⚠️"}</span>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-bold truncate">{INCIDENT_LABELS[inc.type]?.label}</p>
+                                </div>
+                                <button onClick={() => setDismissedIds(s => new Set([...s, inc.id]))} className="text-orange-200 hover:text-white shrink-0">
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 z-10 relative">
 
@@ -119,13 +346,39 @@ export default function LiveTracking() {
                     <div>
                         <div className="flex items-center gap-3 mb-2">
                             <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 animate-pulse">LIVE TRACKING ACTIVE</Badge>
-                            <span className="text-sm text-gray-500">Ride ID: #SAF-8821</span>
+                            {usingSimulation && (
+                                <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200 text-xs">
+                                    Simulation Mode (GPS unavailable)
+                                </Badge>
+                            )}
                         </div>
                         <h1 className="text-3xl font-bold tracking-tight text-[#07503E] dark:text-white">
-                            En Route to Home
+                            En Route {destStr ? `to ${destStr}` : 'to Destination'}
                         </h1>
+                        {visibleIncidents.length > 0 && (
+                            <p className="text-sm text-orange-500 font-semibold mt-1">
+                                ⚠️ {visibleIncidents.length} active incident{visibleIncidents.length > 1 ? 's' : ''} on this route
+                            </p>
+                        )}
                     </div>
-                    <ShareTrackingWidget />
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {/* Manual reroute — always visible */}
+                        <button
+                            onClick={doReroute}
+                            disabled={rerouteLoading}
+                            className="flex items-center gap-2 bg-[#07503E] hover:bg-[#064031] disabled:opacity-50 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-colors shadow-md"
+                        >
+                            <Navigation2 className={`w-4 h-4 ${rerouteLoading ? 'animate-spin' : ''}`} />
+                            Change Route
+                        </button>
+                        <IncidentReporter
+                            routeId={routeId}
+                            userLat={markerLocation?.lat ?? 18.5204}
+                            userLng={markerLocation?.lng ?? 73.8567}
+                            onReport={handleReport}
+                        />
+                        <ShareTrackingWidget />
+                    </div>
                 </header>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -136,9 +389,10 @@ export default function LiveTracking() {
                             directions={directions}
                             simulationLocation={markerLocation}
                             currentStepType={route?.steps?.[currentStepIndex]?.type}
+                            incidents={visibleIncidents}
                         />
 
-                        {/* Driver Details Overlay */}
+                        {/* Driver info overlay */}
                         <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl shadow-lg border border-gray-100 dark:border-white/10 flex items-center justify-between">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl">👨‍✈️</div>
@@ -147,28 +401,52 @@ export default function LiveTracking() {
                                     <p className="text-xs text-gray-500">Toyota Etios • MH 12 AB 1234</p>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <Button size="icon" variant="ghost" className="rounded-full bg-green-50 text-green-600 hover:bg-green-100">
-                                    <Phone className="w-5 h-5" />
-                                </Button>
-                            </div>
+                            <Button size="icon" variant="ghost" className="rounded-full bg-green-50 text-green-600 hover:bg-green-100">
+                                <Phone className="w-5 h-5" />
+                            </Button>
                         </div>
                     </div>
 
-                    {/* RIGHT: Safety Console */}
+                    {/* RIGHT: Panels */}
                     <div className="space-y-6">
-                        <SafetyMonitor
-                            status={safetyStatus}
-                            lastUpdated="Just now"
-                            onSafeClick={handleSafe}
-                            onCallClick={handleCall}
-                        />
+                        <SafetyMonitor status={safetyStatus} lastUpdated="Just now" onSafeClick={handleSafe} onCallClick={handleCall} />
 
                         {route?.steps && (
-                            <JourneyChecklist
-                                steps={route.steps}
-                                currentStepIndex={currentStepIndex}
-                            />
+                            <JourneyChecklist steps={route.steps} currentStepIndex={currentStepIndex} />
+                        )}
+
+                        {/* Active incidents panel */}
+                        {visibleIncidents.length > 0 && (
+                            <Card className="border-orange-200 dark:border-orange-800/30 bg-orange-50 dark:bg-orange-900/10">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm text-orange-700 dark:text-orange-300 flex items-center gap-2">
+                                        <AlertTriangle className="w-4 h-4" />
+                                        Route Incidents ({visibleIncidents.length})
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    {visibleIncidents.map(inc => (
+                                        <div key={inc.id} className="flex items-start gap-2 text-xs">
+                                            <span className="text-base">{INCIDENT_LABELS[inc.type]?.emoji}</span>
+                                            <div className="flex-1">
+                                                <p className="font-semibold text-orange-800 dark:text-orange-200">{INCIDENT_LABELS[inc.type]?.label}</p>
+                                                {inc.description && <p className="text-orange-600/80 dark:text-orange-300/60">{inc.description}</p>}
+                                                <p className="text-orange-400 mt-0.5">
+                                                    {new Date(inc.createdAt).toLocaleTimeString()}
+                                                    {" · expires ~90 min after report"}
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() => setDismissedIds(s => new Set([...s, inc.id]))}
+                                                className="text-orange-300 hover:text-orange-500"
+                                            ><X className="w-3.5 h-3.5" /></button>
+                                        </div>
+                                    ))}
+                                    <button onClick={doReroute} className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-xl mt-1 transition-colors">
+                                        <RefreshCw className="w-3.5 h-3.5" /> Reroute Away From Incidents
+                                    </button>
+                                </CardContent>
+                            </Card>
                         )}
 
                         <div className="bg-red-50 dark:bg-red-900/10 p-6 rounded-2xl border border-red-100 dark:border-red-900/20 text-center space-y-4">
@@ -179,11 +457,9 @@ export default function LiveTracking() {
                                     Press and hold the SOS button for 3 seconds to alert police.
                                 </p>
                             </div>
-                            {/* The Floating SOS button handles the actual action, this is just info context */}
                         </div>
                     </div>
                 </div>
-
             </main>
 
             <SOSButton />

@@ -1,17 +1,14 @@
-import { GoogleMap, Marker, DirectionsRenderer } from '@react-google-maps/api';
+import { GoogleMap, Marker, DirectionsRenderer, Circle, OverlayView } from '@react-google-maps/api';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useSocket } from '../context/SocketContext';
+import type { Incident } from './IncidentReporter';
 
-const containerStyle = {
-    width: '100%',
-    height: '100%',
-    minHeight: '400px'
-};
+const containerStyle = { width: '100%', height: '100%', minHeight: '400px' };
+const defaultCenter = { lat: 18.5204, lng: 73.8567 }; // Pune
 
-// Default to New Delhi
-const defaultCenter = {
-    lat: 28.6139,
-    lng: 77.2090
+const INCIDENT_EMOJI: Record<string, string> = {
+    road_blocked: '🚧', accident: '💥', waterlogging: '🌊',
+    police_naka: '🚔', oil_spill: '🛢️', other: '⚠️',
 };
 
 interface MapComponentProps {
@@ -19,67 +16,49 @@ interface MapComponentProps {
     directions?: google.maps.DirectionsResult | null;
     simulationLocation?: google.maps.LatLngLiteral | null;
     currentStepType?: string;
+    /** Active incidents to display as danger-zone circles on the map */
+    incidents?: Incident[];
 }
 
-function MapComponent({ isLoaded, directions, simulationLocation, currentStepType }: MapComponentProps) {
-    // User's real-time location
+function MapComponent({ isLoaded, directions, simulationLocation, currentStepType, incidents = [] }: MapComponentProps) {
     const [userLocation, setUserLocation] = useState<google.maps.LatLngLiteral | null>(null);
     const [map, setMap] = useState<google.maps.Map | null>(null);
 
-    // Default to New Delhi if user location not found
-    const center = userLocation || defaultCenter;
-
-    // Get Real-time location
     useEffect(() => {
-        if (navigator.geolocation) {
-            const watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const pos = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                    };
-                    setUserLocation(pos);
-                    // Optional: Pan map to user on first load
-                    // if (map) map.panTo(pos); 
-                },
-                (error) => {
-                    console.error("Error watching geolocation:", error);
-                }
-            );
-            return () => navigator.geolocation.clearWatch(watchId);
-        }
-    }, [map]);
+        if (!navigator.geolocation) return;
+        const id = navigator.geolocation.watchPosition(
+            (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+            (err) => console.warn("Geolocation error:", err)
+        );
+        return () => navigator.geolocation.clearWatch(id);
+    }, []);
+
+    // Pan to user location on first fix
+    useEffect(() => {
+        if (map && userLocation) map.panTo(userLocation);
+    }, [map, userLocation]);
 
     const { socket } = useSocket();
-    const [riders, setRiders] = useState<{ [key: string]: { lat: number, lng: number } }>({});
+    const [riders, setRiders] = useState<{ [key: string]: { lat: number; lng: number } }>({});
 
     useEffect(() => {
         if (!socket) return;
-
-        socket.on('location_update', (data: { rideId: string, lat: number, lng: number, userId?: string }) => {
-            // In a real app, filtering by rideId is crucial.
-            // For this demo, we can just show all updates or use a dummy ID.
-            console.log("Location received:", data);
-            setRiders(prev => ({
-                ...prev,
-                [data.rideId]: { lat: data.lat, lng: data.lng }
-            }));
-        });
-
-        return () => {
-            socket.off('location_update');
+        const handler = (data: { rideId: string; lat: number; lng: number }) => {
+            setRiders(prev => ({ ...prev, [data.rideId]: { lat: data.lat, lng: data.lng } }));
         };
+        socket.on('location_update', handler);
+        return () => { socket.off('location_update', handler); };
     }, [socket]);
 
-    const onLoad = useCallback(function callback(map: google.maps.Map) {
-        setMap(map);
-    }, []);
+    const onLoad = useCallback((m: google.maps.Map) => setMap(m), []);
+    const onUnmount = useCallback(() => setMap(null), []);
 
-    const onUnmount = useCallback(function callback() {
-        setMap(null);
-    }, []);
+    if (!isLoaded) return <div className="flex items-center justify-center h-full text-gray-400">Loading Map…</div>;
 
-    if (!isLoaded) return <div>Loading Map...</div>;
+    // Drive map center: prefer user GPS → then first incident → then directions start → default
+    const center = userLocation
+        ?? (incidents[0] ? { lat: incidents[0].lat, lng: incidents[0].lng } : null)
+        ?? defaultCenter;
 
     return (
         <GoogleMap
@@ -88,12 +67,14 @@ function MapComponent({ isLoaded, directions, simulationLocation, currentStepTyp
             zoom={14}
             onLoad={onLoad}
             onUnmount={onUnmount}
+            options={{ mapTypeControl: false, streetViewControl: false, fullscreenControl: false }}
         >
-            {/* User's Current Location Marker */}
+            {/* ── User GPS dot ─────────────────────────────────────────────── */}
             {userLocation && (
                 <Marker
                     position={userLocation}
                     title="You are here"
+                    zIndex={100}
                     icon={{
                         path: window.google.maps.SymbolPath.CIRCLE,
                         scale: 10,
@@ -105,60 +86,115 @@ function MapComponent({ isLoaded, directions, simulationLocation, currentStepTyp
                 />
             )}
 
-            {/* Simulation Location Marker (Changes icon based on transport mode) */}
+            {/* ── Simulation / transport-mode marker ───────────────────────── */}
             {simulationLocation && (
                 <Marker
                     position={simulationLocation}
                     zIndex={50}
                     icon={{
-                        url: currentStepType === 'walk' ? 'https://maps.google.com/mapfiles/kml/shapes/man.png' :
-                            currentStepType === 'metro' || currentStepType === 'train' ? 'https://maps.google.com/mapfiles/kml/shapes/rail.png' :
-                                currentStepType === 'bus' ? 'https://maps.google.com/mapfiles/kml/shapes/bus.png' :
-                                    'https://maps.google.com/mapfiles/kml/shapes/cabs.png',
-                        scaledSize: new window.google.maps.Size(40, 40)
+                        url: currentStepType === 'walk'
+                            ? 'https://maps.google.com/mapfiles/kml/shapes/man.png'
+                            : currentStepType === 'metro' || currentStepType === 'train'
+                                ? 'https://maps.google.com/mapfiles/kml/shapes/rail.png'
+                                : currentStepType === 'bus'
+                                    ? 'https://maps.google.com/mapfiles/kml/shapes/bus.png'
+                                    : 'https://maps.google.com/mapfiles/kml/shapes/cabs.png',
+                        scaledSize: new window.google.maps.Size(40, 40),
                     }}
                 />
             )}
 
-            {/* Draw the Routes with Colors */}
-            {directions && directions.routes.map((_route, index) => {
-                // Determine color based on index/type
-                // 0: Fastest (Blue)
-                // 1: Cheapest (Green)
-                // 2: Safest (Red)
-                let color = "#2563EB"; // Blue default
-                let zIndex = 1;
+            {/* ── Route polylines ───────────────────────────────────────────── */}
+            {directions && directions.routes.map((_r, idx) => (
+                <DirectionsRenderer
+                    key={idx}
+                    directions={directions}
+                    routeIndex={idx}
+                    options={{
+                        suppressMarkers: idx !== 0,
+                        polylineOptions: {
+                            strokeColor: idx === 0 ? "#07503E" : idx === 1 ? "#16A34A" : "#2563EB",
+                            strokeWeight: idx === 0 ? 7 : 4,
+                            strokeOpacity: idx === 0 ? 0.9 : 0.5,
+                            zIndex: idx === 0 ? 10 : 3,
+                        },
+                    }}
+                />
+            ))}
 
-                if (index === 0) { color = "#2563EB"; zIndex = 10; } // Fastest
-                else if (index === 1) { color = "#16A34A"; zIndex = 5; } // Cheapest (Green)
-                else if (index === 2) { color = "#DC2626"; zIndex = 4; } // Safest (Red)
-
+            {/* ── Danger zone overlays for each active incident ──────────────
+                 Rendered as:
+                 1. Pulsing red filled Circle  (200m radius = visible danger area)
+                 2. Dashed outer warning ring  (400m = awareness zone)
+                 3. Emoji + label via OverlayView
+             */}
+            {incidents.map((inc) => {
+                const pos = { lat: inc.lat, lng: inc.lng };
+                const emoji = INCIDENT_EMOJI[inc.type] ?? '⚠️';
                 return (
-                    <DirectionsRenderer
-                        key={index}
-                        directions={directions}
-                        routeIndex={index}
-                        options={{
-                            suppressMarkers: index !== 0, // Only show markers for the primary route
-                            polylineOptions: {
-                                strokeColor: color,
-                                strokeWeight: 6,
+                    <div key={inc.id}>
+                        {/* Inner danger fill */}
+                        <Circle
+                            center={pos}
+                            radius={200}
+                            options={{
+                                fillColor: '#EF4444',
+                                fillOpacity: 0.25,
+                                strokeColor: '#EF4444',
                                 strokeOpacity: 0.8,
-                                zIndex: zIndex
-                            }
-                        }}
-                    />
+                                strokeWeight: 2,
+                                zIndex: 20,
+                            }}
+                        />
+                        {/* Outer awareness ring */}
+                        <Circle
+                            center={pos}
+                            radius={400}
+                            options={{
+                                fillColor: '#F97316',
+                                fillOpacity: 0.08,
+                                strokeColor: '#F97316',
+                                strokeOpacity: 0.4,
+                                strokeWeight: 1.5,
+                                zIndex: 19,
+                            }}
+                        />
+                        {/* Emoji pin label */}
+                        <OverlayView
+                            position={pos}
+                            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                        >
+                            <div
+                                style={{
+                                    transform: 'translate(-50%, -100%)',
+                                    marginTop: '-8px',
+                                    background: 'rgba(239,68,68,0.95)',
+                                    color: 'white',
+                                    borderRadius: '12px',
+                                    padding: '4px 10px',
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    whiteSpace: 'nowrap',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                                    border: '2px solid white',
+                                    userSelect: 'none',
+                                }}
+                            >
+                                {emoji} {inc.type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                            </div>
+                        </OverlayView>
+                    </div>
                 );
             })}
 
-            {/* Render markers for other riders/drivers */}
+            {/* ── Other riders ─────────────────────────────────────────────── */}
             {Object.entries(riders).map(([id, loc]) => (
                 <Marker
                     key={id}
                     position={loc}
                     icon={{
                         url: "https://maps.google.com/mapfiles/kml/shapes/cabs.png",
-                        scaledSize: new window.google.maps.Size(30, 30)
+                        scaledSize: new window.google.maps.Size(30, 30),
                     }}
                 />
             ))}
