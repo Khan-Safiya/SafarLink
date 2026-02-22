@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useState, useEffect } from "react";
-import { MapPin, Sparkles, Brain, Leaf, TrendingUp } from "lucide-react";
+import { MapPin, Sparkles } from "lucide-react";
 import { useJsApiLoader } from '@react-google-maps/api';
 import MapComponent from "../components/MapComponent";
 import RouteCard from "../components/RouteCard";
@@ -14,6 +14,13 @@ import { Badge } from "@/components/ui/badge";
 import Footer from "../components/Footer";
 import LocationInput from "../components/LocationInput";
 import ServicesGrid from "../components/ServicesGrid";
+
+import imgMetro from "../assets/metro.jpeg";
+import imgBus from "../assets/bus.png";
+import imgAuto from "../assets/auto.png";
+import imgRouteOpt from "../assets/routeOpt.png";
+import imgCarbonImpact from "../assets/carbonImpact.jpeg";
+import imgCostOpt from "../assets/costOpt.jpeg";
 
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
 
@@ -166,8 +173,18 @@ export default function Dashboard() {
 
             <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8 z-10 relative mt-4">
 
+                {/* Background Images spanning whole width, fixed to top behind everything */}
+                <div className="fixed top-0 left-0 w-full h-[85vh] flex z-[-1] pointer-events-none">
+                    <img src={imgBus} alt="Bus" className="w-1/3 h-full object-cover" />
+                    <img src={imgMetro} alt="Metro" className="w-1/3 h-full object-cover" />
+                    <img src={imgAuto} alt="Auto" className="w-1/3 h-full object-cover" />
+                    {/* Gradient overlay to ensure text remains readable and blend with the app background */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-[#F8F8F9]/40 to-[#F8F8F9] dark:from-background/10 dark:via-background/40 dark:to-background pointer-events-none"></div>
+                </div>
+
                 {/* Hero Section with Search & Cards */}
                 <div className="flex flex-col items-center justify-center space-y-12 py-10 relative">
+
                     {/* Add Stripe Gradient Blobs to Map */}
                     {!isWomenOnly && (
                         <>
@@ -183,11 +200,11 @@ export default function Dashboard() {
                             animate={{ opacity: 1, y: 0 }}
                             className="text-5xl md:text-6xl font-bold tracking-tight"
                         >
-                            <span className="text-[#111439] dark:text-white block">Precision of experts.</span>
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#635BFF] to-[#00D4FF] block mt-2">Speed of AI.</span>
+                            <span className="text-[#111439] dark:text-white block">Smarter Travel Decisions.</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#635BFF] to-[#00D4FF] block mt-2">AI Powered Routing.</span>
                         </motion.h1>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
-                            Ask EcoPilot to plan your journey, optimize for carbon impact, or find the safest path in seconds.
+                        <p className="text-[#111439] dark:text-black max-w-2xl mx-auto text-lg">
+                            Smarter Route Planning for Safer, Faster, and Affordable Travel. From Doorstep to Destination, Perfectly Planned.
                         </p>
                     </div>
 
@@ -198,7 +215,7 @@ export default function Dashboard() {
                             <div className="absolute left-[27px] top-[60px] bottom-[60px] w-0.5 border-l-2 border-dashed border-gray-300 dark:border-gray-700 z-0" />
 
                             {/* Starting Location */}
-                            <div className="bg-white dark:bg-card p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 relative z-10">
+                            <div className="bg-white/60 dark:bg-card/60 backdrop-blur-md p-2 rounded-2xl shadow-sm border border-white/40 dark:border-white/10 relative z-10 transition-colors">
                                 <div className="flex items-start gap-4 p-4">
                                     <div className="mt-2">
                                         <MapPin className="w-6 h-6 text-blue-500 fill-blue-100" />
@@ -210,7 +227,7 @@ export default function Dashboard() {
                                             value={startLocationAddress}
                                             onChange={setStartLocationAddress}
                                             onPlaceSelected={handleStartLocationSelect}
-                                            className="bg-gray-50 dark:bg-black/20 border-transparent h-12 text-lg w-full"
+                                            className="bg-white/50 dark:bg-black/40 border-transparent h-12 text-lg w-full"
                                             icon={<div className="hidden" />} // Hide default icon
                                         />
                                     </div>
@@ -218,7 +235,7 @@ export default function Dashboard() {
                             </div>
 
                             {/* Destination */}
-                            <div className="bg-white dark:bg-card p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 relative z-10">
+                            <div className="bg-white/60 dark:bg-card/60 backdrop-blur-md p-2 rounded-2xl shadow-sm border border-white/40 dark:border-white/10 relative z-10 transition-colors">
                                 <div className="flex items-start gap-4 p-4">
                                     <div className="mt-2">
                                         <MapPin className="w-6 h-6 text-[#635BFF] fill-indigo-100" />
@@ -230,7 +247,7 @@ export default function Dashboard() {
                                             value={destination}
                                             onChange={setDestination}
                                             onPlaceSelected={handleSearch}
-                                            className="bg-gray-50 dark:bg-black/20 border-transparent h-12 text-lg w-full"
+                                            className="bg-white/50 dark:bg-black/40 border-transparent h-12 text-lg w-full"
                                             icon={<div className="hidden" />} // Hide default icon
                                         />
                                     </div>
@@ -251,106 +268,117 @@ export default function Dashboard() {
                         </div>
                     </div>
 
+                    {/* Services Grid & Map Section (Keep existing but push down) */}
+                    <div className="space-y-8 relative z-10">
+
+
+                        {/* Main Content Area: Map & Routes (Conditional) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Left: Map Container */}
+                            <div className={`lg:col-span-2 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 min-h-[500px] relative ${isWomenOnly ? 'shadow-pink-900/10 border-white dark:border-pink-950' : 'shadow-[#111439]/10 dark:shadow-black/50 border-white dark:border-[#0a0a0a]'}`}>
+                                <MapComponent isLoaded={isLoaded} directions={directionsHelp} />
+                            </div>
+
+                            {/* Right: Route Options (Only show if searched) */}
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-between">
+                                    <h2 className={`text-xl font-bold ${isWomenOnly ? 'text-pink-900 dark:text-white' : 'text-[#111439] dark:text-white'}`}>
+                                        {showRoutes ? "Suggested Routes" : "Nearby Activity"}
+                                    </h2>
+                                    {showRoutes && <Badge variant="outline" className="border-[#635BFF] text-[#635BFF]">3 Options</Badge>}
+                                </div>
+
+                                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {showRoutes ? (
+                                        routes.map(route => (
+                                            <RouteCard
+                                                key={route.id}
+                                                route={route}
+                                                selected={selectedRoute?.id === route.id}
+                                                onSelect={setSelectedRoute}
+                                                originStr={startLocationAddress}
+                                                destStr={destination}
+                                                originCoords={`${currentLocation?.lat},${currentLocation?.lng}`}
+                                                destCoords={`${toCoords?.lat},${toCoords?.lng}`}
+                                            />
+                                        ))
+                                    ) : (
+                                        <Card className="border-dashed bg-transparent shadow-none">
+                                            <CardContent className="flex flex-col items-center justify-center py-10 text-center opacity-60">
+                                                <MapPin className="w-12 h-12 mb-4 text-gray-300" />
+                                                <p className="text-sm">Enter a destination above to see route options.</p>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Feature Cards (Image 1) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-12 relative z-10">
                         {/* Card 1 */}
                         <motion.div
                             whileHover={{ y: -5 }}
-                            className="bg-white dark:bg-card p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all"
+                            className="bg-white dark:bg-card rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all overflow-hidden p-0 flex flex-col group"
                         >
-                            <div className="w-12 h-12 bg-[#635BFF]/10 dark:bg-[#635BFF]/20 rounded-2xl flex items-center justify-center mb-6 text-[#111439] dark:text-[#00D4FF]">
-                                <Brain className="w-6 h-6" />
+                            <div className="w-full h-40 overflow-hidden">
+                                <img src={imgRouteOpt} alt="Route Optimization" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-xl font-bold text-[#111439] dark:text-white mb-3">Route Intelligence</h3>
-                            <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
-                                AI-optimized paths tailored for speed, safety, and comfort.
-                            </p>
+                            <div className="p-6 flex-1 flex flex-col">
+                                <h3 className="text-xl font-bold text-[#111439] dark:text-white mb-3">Route Intelligence</h3>
+                                <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    AI-optimized paths tailored for speed, safety, and comfort.
+                                </p>
+                            </div>
                         </motion.div>
 
                         {/* Card 2 */}
                         <motion.div
                             whileHover={{ y: -5 }}
-                            className="bg-white dark:bg-card p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all"
+                            className="bg-white dark:bg-card rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all overflow-hidden p-0 flex flex-col group"
                         >
-                            <div className="w-12 h-12 bg-[#FFB347]/10 dark:bg-[#FFB347]/20 rounded-2xl flex items-center justify-center mb-6 text-[#111439] dark:text-[#FFB347]">
-                                <Leaf className="w-6 h-6" />
+                            <div className="w-full h-40 overflow-hidden">
+                                <img src={imgCarbonImpact} alt="Carbon Impact" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-xl font-bold text-[#111439] dark:text-white mb-3">Carbon Impact</h3>
-                            <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
-                                Real-time CO2 tracking and offsets for every mile you travel.
-                            </p>
+                            <div className="p-6 flex-1 flex flex-col">
+                                <h3 className="text-xl font-bold text-[#111439] dark:text-white mb-3">Carbon Impact</h3>
+                                <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    Real-time CO2 tracking and offsets for every mile you travel.
+                                </p>
+                            </div>
                         </motion.div>
 
                         {/* Card 3 */}
                         <motion.div
                             whileHover={{ y: -5 }}
-                            className="bg-white dark:bg-card p-8 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all"
+                            className="bg-white dark:bg-card rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all overflow-hidden p-0 flex flex-col group"
                         >
-                            <div className="w-12 h-12 bg-[#00D4FF]/10 dark:bg-[#00D4FF]/20 rounded-2xl flex items-center justify-center mb-6 text-[#111439] dark:text-[#00D4FF]">
-                                <TrendingUp className="w-6 h-6" />
+                            <div className="w-full h-40 overflow-hidden">
+                                <img src={imgCostOpt} alt="Cost Optimization" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-xl font-bold text-[#111439] dark:text-white mb-3">Cost Optimization</h3>
-                            <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
-                                Smart pooling algorithms to reduce your daily travel spend.
-                            </p>
+                            <div className="p-6 flex-1 flex flex-col">
+                                <h3 className="text-xl font-bold text-[#111439] dark:text-white mb-3">Cost Optimization</h3>
+                                <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
+                                    Smart pooling algorithms to reduce your daily travel spend.
+                                </p>
+                            </div>
                         </motion.div>
                     </div>
 
-                </div>
-
-                {/* Services Grid & Map Section (Keep existing but push down) */}
-                <div className="space-y-8 relative z-10">
-                    <h2 className="text-2xl font-bold text-[#111439] dark:text-white">Explore Services</h2>
-                    <ServicesGrid />
-
-                    {/* Main Content Area: Map & Routes (Conditional) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Left: Map Container */}
-                        <div className={`lg:col-span-2 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 min-h-[500px] relative ${isWomenOnly ? 'shadow-pink-900/10 border-white dark:border-pink-950' : 'shadow-[#111439]/10 dark:shadow-black/50 border-white dark:border-[#0a0a0a]'}`}>
-                            <MapComponent isLoaded={isLoaded} directions={directionsHelp} />
-                        </div>
-
-                        {/* Right: Route Options (Only show if searched) */}
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h2 className={`text-xl font-bold ${isWomenOnly ? 'text-pink-900 dark:text-white' : 'text-[#111439] dark:text-white'}`}>
-                                    {showRoutes ? "Suggested Routes" : "Nearby Activity"}
-                                </h2>
-                                {showRoutes && <Badge variant="outline" className="border-[#635BFF] text-[#635BFF]">3 Options</Badge>}
-                            </div>
-
-                            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-                                {showRoutes ? (
-                                    routes.map(route => (
-                                        <RouteCard
-                                            key={route.id}
-                                            route={route}
-                                            selected={selectedRoute?.id === route.id}
-                                            onSelect={setSelectedRoute}
-                                            originStr={startLocationAddress}
-                                            destStr={destination}
-                                            originCoords={`${currentLocation?.lat},${currentLocation?.lng}`}
-                                            destCoords={`${toCoords?.lat},${toCoords?.lng}`}
-                                        />
-                                    ))
-                                ) : (
-                                    <Card className="border-dashed bg-transparent shadow-none">
-                                        <CardContent className="flex flex-col items-center justify-center py-10 text-center opacity-60">
-                                            <MapPin className="w-12 h-12 mb-4 text-gray-300" />
-                                            <p className="text-sm">Enter a destination above to see route options.</p>
-                                        </CardContent>
-                                    </Card>
-                                )}
-                            </div>
-                        </div>
+                    <div className="mt-8 w-full">
+                        <h2 className="text-3xl font-bold text-[#111439] dark:text-white mb-4">Explore Services</h2>
+                        <ServicesGrid />
                     </div>
+
+
 
                     {/* Recent Activity / Safety Tips */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                         <Card className={`rounded-3xl border shadow-sm ${isWomenOnly ? 'bg-white/80 dark:bg-pink-950/20 border-pink-100 dark:border-pink-900/20' : 'bg-white/80 dark:bg-card border-[#635BFF]/10 dark:border-border'}`}>
                             <CardHeader>
                                 <CardTitle className={isWomenOnly ? 'text-pink-900 dark:text-white' : 'text-[#111439] dark:text-white'}>Recent Activity</CardTitle>
-                                <CardDescription>Your last 3 journeys with EcoPilot.</CardDescription>
+                                <CardDescription>Your last 3 journeys with SafarLink.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {[1, 2, 3].map((i) => (

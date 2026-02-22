@@ -654,8 +654,8 @@ export default function AiRoutePlanner() {
                     className="space-y-2"
                 >
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                            <Bot className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                        <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-sm flex-shrink-0 border border-indigo-100 dark:border-indigo-900/30">
+                            <img src="/logo.jpeg" alt="SafarLink Logo" className="w-full h-full object-cover" />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-[#111439] dark:text-white">

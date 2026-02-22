@@ -1,45 +1,64 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Leaf, Shield, Zap, ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, Home, Navigation, Users, Search } from "lucide-react";
 import HeroCarousel from "../components/HeroCarousel";
 import MetroHeroScroll from "../components/MetroHeroScroll";
 import Footer from "../components/Footer";
+import Dock from "../components/Dock";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import bgImage from "../assets/FAQ.jpeg"
+import imgEcoTracking from "../assets/e2e.jpeg"
+import imgWomenMode from "../assets/WomenMode.jpeg"
+import imgPooling from "../assets/pooling.jpeg"
 
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
 export default function Landing() {
+    const navigate = useNavigate();
+
+    const dockItems = [
+        { icon: <Home size={22} />, label: 'Home', onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
+        { icon: <Navigation size={22} />, label: 'Map', onClick: () => navigate('/dashboard') },
+        { icon: <Users size={22} />, label: 'Pooling', onClick: () => navigate('/vehicle-pooling') },
+        { icon: <Search size={22} />, label: 'AI Planner', onClick: () => navigate('/ai-planner') },
+    ];
     return (
         <div className="min-h-screen bg-[#F8F8F9] font-sans text-[#111439] selection:bg-[#635BFF] selection:text-white">
-            {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-[#F8F8F9]/80 backdrop-blur-md border-b border-[#111439]/5">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <div className="bg-[#635BFF] p-2 rounded-lg">
-                            <Leaf className="w-6 h-6 text-white fill-white" />
-                        </div>
-                        <span className="text-2xl font-bold tracking-tight text-[#111439]">
-                            SafarLink
-                        </span>
-                    </div>
+            {/* Floating React Bits Dock (Top) */}
+            {/* <div className="fixed top-2 left-0 right-0 z-50 pointer-events-none">
+                <Dock
+                    items={dockItems}
+                    panelHeight={64}
+                    dockHeight={84}
+                    distance={120}
+                    magnification={70}
+                />
+            </div> */}
 
-                    <div className="flex items-center gap-8">
-                        <SignedIn>
-                            <Link to="/dashboard" className="text-sm font-semibold hover:text-[#635BFF] transition-colors">Dashboard</Link>
-                            <UserButton />
-                        </SignedIn>
-                        <SignedOut>
-                            <div className="hidden md:flex gap-8 text-sm font-semibold text-[#111439]">
-                                <Link to="/sign-in" className="hover:text-[#635BFF] transition-colors">Log in</Link>
-                            </div>
-                            <Link to="/sign-up" className="px-6 py-2.5 rounded-full bg-[#111439] text-white text-sm font-bold hover:bg-[#1a1f5c] transition shadow-lg shadow-[#111439]/20">
-                                Request a Demo
-                            </Link>
-                        </SignedOut>
-                    </div>
+            {/* Top Auth Bar (Minimalist) */}
+            <div className="absolute top-4 right-6 z-50 flex items-center gap-4">
+                <SignedIn>
+                    <Link to="/dashboard" className="text-sm text-white font-semibold hover:text-[#635BFF] transition-colors">Dashboard</Link>
+                    <UserButton />
+                </SignedIn>
+                <SignedOut>
+                    <Link to="/sign-in" className="hidden md:block text-sm font-semibold hover:text-[#635BFF] transition-colors">Log in</Link>
+                    <Link to="/sign-up" className="px-5 py-2 rounded-full bg-[#111439] text-white text-sm font-bold hover:bg-[#1a1f5c] transition shadow-lg shadow-[#111439]/20">
+                        Demo
+                    </Link>
+                </SignedOut>
+            </div>
+
+            {/* Top Branding (Centered) */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 pointer-events-auto">
+                <div className="w-9 h-9 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                    <img src="/logo.jpeg" alt="SafarLink Logo" className="w-full h-full object-cover" />
                 </div>
-            </nav>
+                <span className="text-3xl font-black tracking-tight text-white drop-shadow-sm">
+                    SafarLink
+                </span>
+            </div>
 
             {/* Scroll-Driven Metro Animation */}
             <MetroHeroScroll />
@@ -70,7 +89,7 @@ export default function Landing() {
                             Join the movement towards sustainable urban mobility. Measure, reduce, and offset your carbon footprint with every ride.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <Link to="/dashboard" className="px-8 py-4 rounded-full bg-[#111439] text-white font-bold text-lg hover:bg-[#1a1f5c] transition flex items-center justify-center gap-3 shadow-xl">
+                            <Link to="/dashboard" className="px-8 py-4 rounded-full bg-[#111439] text-white font-bold text-xl hover:bg-[#1a1f5c] transition flex items-center justify-center gap-3 shadow-xl">
                                 Start Commuting <ArrowRight className="w-5 h-5" />
                             </Link>
                             <Link to="/sign-up" className="px-8 py-4 rounded-full bg-white text-[#111439] shadow-sm border border-[#111439]/10 font-bold text-lg hover:bg-[#F8F8F9] transition flex items-center justify-center">
@@ -146,54 +165,78 @@ export default function Landing() {
                         {/* Card 1 */}
                         <motion.div
                             whileHover={{ y: -10 }}
-                            className="bg-white p-10 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#111439]/5 relative overflow-hidden group"
+                            className="bg-white rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#111439]/5 relative overflow-hidden group flex flex-col"
                         >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#635BFF]/5 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform duration-500"></div>
-                            <div className="w-16 h-16 bg-[#F8F8F9] rounded-2xl flex items-center justify-center mb-8 border border-[#111439]/5 shadow-sm">
-                                <TrendingUp className="w-8 h-8 text-[#635BFF]" />
+
+                            {/* Full-width Image Header */}
+                            <div className="w-full h-48 overflow-hidden">
+                                <img src={imgEcoTracking} alt="Eco Tracking" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-2xl font-bold text-[#111439] mb-4">Real-time Carbon Tracking</h3>
-                            <p className="text-[#111439]/70 leading-relaxed">
-                                Automatically calculate the CO2 emissions of every trip. Compare routes not just by time, but by environmental impact.
-                            </p>
+
+                            {/* Text Content */}
+                            <div className="p-8 pt-6 flex-1 flex flex-col">
+                                <h3 className="text-2xl font-bold text-[#111439] mb-4">E2E Journey Planning</h3>
+                                <p className="text-[#111439]/70 leading-relaxed">
+                                    Helps users plan their entire trip from source to destination by suggesting the most efficient route based on time, cost, and available transport options.
+                                </p>
+                            </div>
                         </motion.div>
 
                         {/* Card 2 */}
                         <motion.div
                             whileHover={{ y: -10 }}
-                            className="bg-white p-10 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#111439]/5 relative overflow-hidden group"
+                            className="bg-white rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#111439]/5 relative overflow-hidden group flex flex-col"
                         >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#FFB347]/10 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform duration-500"></div>
-                            <div className="w-16 h-16 bg-[#F8F8F9] rounded-2xl flex items-center justify-center mb-8 border border-[#111439]/5 shadow-sm">
-                                <Shield className="w-8 h-8 text-[#FFB347]" />
+
+                            {/* Full-width Image Header */}
+                            <div className="w-full h-48 overflow-hidden">
+                                <img src={imgWomenMode} alt="Women Mode" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-2xl font-bold text-[#111439] mb-4">Certified Safe Rides</h3>
-                            <p className="text-[#111439]/70 leading-relaxed">
-                                Our Women-Only mode ensures peace of mind. All drivers are verified through our comprehensive 3-step community process.
-                            </p>
+
+                            {/* Text Content */}
+                            <div className="p-8 pt-6 flex-1 flex flex-col">
+                                <h3 className="text-2xl font-bold text-[#111439] mb-4">Women Only Mode</h3>
+                                <p className="text-[#111439]/70 leading-relaxed">
+                                    A safety-focused feature that connects female users with women drivers or co-passengers, providing a more secure and comfortable travel experience.
+                                </p>
+                            </div>
                         </motion.div>
 
                         {/* Card 3 */}
                         <motion.div
                             whileHover={{ y: -10 }}
-                            className="bg-white p-10 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#111439]/5 relative overflow-hidden group"
+                            className="bg-white rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#111439]/5 relative overflow-hidden group flex flex-col"
                         >
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#00D4FF]/10 rounded-bl-[100px] -z-10 group-hover:scale-110 transition-transform duration-500"></div>
-                            <div className="w-16 h-16 bg-[#F8F8F9] rounded-2xl flex items-center justify-center mb-8 border border-[#111439]/5 shadow-sm">
-                                <Zap className="w-8 h-8 text-[#00D4FF]" />
+
+                            {/* Full-width Image Header */}
+                            <div className="w-full h-48 overflow-hidden">
+                                <img src={imgPooling} alt="Pooling" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="text-2xl font-bold text-[#111439] mb-4">Multi-Modal Integration</h3>
-                            <p className="text-[#111439]/70 leading-relaxed">
-                                Seamlessly connect bus dropping points to shared autos. One ticket, one journey, zero friction.
-                            </p>
+
+                            {/* Text Content */}
+                            <div className="p-8 pt-6 flex-1 flex flex-col">
+                                <h3 className="text-2xl font-bold text-[#111439] mb-4">Vehicle Pooling</h3>
+                                <p className="text-[#111439]/70 leading-relaxed">
+                                    Allows multiple users traveling in the same direction to share one vehicle, helping reduce travel costs, traffic congestion, and fuel consumption.
+                                </p>
+                            </div>
                         </motion.div>
                     </div>
                 </div>
             </section >
 
             {/* FAQ Section */}
-            <section className="py-24 px-6 bg-white dark:bg-background border-t border-[#111439]/5" >
-                <div className="max-w-3xl mx-auto">
+            <section
+                className="py-24 px-6 pb-10 relative bg-cover bg-center bg-no-repeat border-t border-[#111439]/5"
+                style={{ backgroundImage: `url(${bgImage})` }}
+            >
+                {/* Overlay to ensure text readability */}
+                <div className="absolute inset-0 bg-white/70 dark:bg-[#111439]/80 z-0"></div>
+
+                <div className="max-w-3xl mx-auto relative z-10">
                     <div className="text-center mb-16">
                         <Badge variant="secondary" className="mb-4 bg-[#635BFF]/10 text-[#635BFF] hover:bg-[#635BFF]/20 dark:text-primary">Common Questions</Badge>
                         <h2 className="text-4xl font-bold text-[#111439] dark:text-foreground mb-4">Everything you need to know</h2>
@@ -230,21 +273,21 @@ export default function Landing() {
             </section >
 
             {/* CTA Section */}
-            <section className="py-24 px-6 bg-[#F8F8F9]" >
-                <div className="max-w-7xl mx-auto bg-gradient-to-r from-[#111439] to-[#1a1f5c] rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl">
-                    <div className="relative z-10 max-w-2xl mx-auto">
+            {/* <section className="py-24 px-6 bg-[#F8F8F9]" > */}
+            {/* <div className="max-w-7xl mx-auto bg-gradient-to-r from-[#111439] to-[#1a1f5c] rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden shadow-2xl"> */}
+            {/* <div className="relative z-10 max-w-2xl mx-auto">
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">Ready to green your routine?</h2>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
                             <Link to="/sign-up" className="px-10 py-5 rounded-full bg-white text-[#111439] font-bold text-lg hover:bg-[#F8F8F9] transition shadow-xl">
                                 Get Started for Free
                             </Link>
                         </div>
-                    </div>
-                    {/* Decorative Blobs */}
-                    <div className="absolute top-0 left-0 w-64 h-64 bg-[#635BFF] opacity-50 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                    </div> */}
+            {/* Decorative Blobs */}
+            {/* <div className="absolute top-0 left-0 w-64 h-64 bg-[#635BFF] opacity-50 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
                     <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#00D4FF] opacity-40 rounded-full blur-3xl transform translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
-                </div>
-            </section >
+                </div> */}
+            {/* </section > */}
 
             {/* Footer */}
             <Footer />

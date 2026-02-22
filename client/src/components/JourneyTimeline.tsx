@@ -32,7 +32,7 @@ export default function JourneyTimeline({ steps }: JourneyTimelineProps) {
     return (
         <div className="relative pl-4 pt-2">
             {/* Connecting Line */}
-            <div className="absolute left-[23px] top-4 bottom-4 w-0.5 bg-gray-200 dark:bg-gray-700 -z-10"></div>
+            <div className="absolute left-[23px] top-4 bottom-4 w-0.5 bg-blue-100 dark:bg-gray-700 -z-10"></div>
 
             <div className="space-y-6">
                 {steps.map((step, idx) => {

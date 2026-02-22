@@ -1,7 +1,8 @@
 import { UserButton } from "@clerk/clerk-react";
 import ThemeToggle from "./ThemeToggle";
-import { Leaf } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Users, MapPin, Shield, Bot, TrendingUp, Home } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import Dock from "./Dock";
 
 interface NavbarProps {
     isWomenOnly: boolean;
@@ -11,33 +12,40 @@ interface NavbarProps {
 }
 
 export default function Navbar({ isWomenOnly, setIsWomenOnly, isDriverMode, setIsDriverMode }: NavbarProps) {
+    const navigate = useNavigate();
+
+    const dockItems = [
+        { icon: <Home size={20} />, label: 'Home', onClick: () => navigate('/dashboard') },
+        { icon: <Users size={20} />, label: 'Ride Pooling', onClick: () => navigate('/vehicle-pooling') },
+        { icon: <TrendingUp size={20} />, label: 'Shared Auto', onClick: () => navigate('/shared-auto') },
+        { icon: <Bot size={20} />, label: 'AI Route Planner', onClick: () => navigate('/ai-planner') },
+    ];
+
     return (
-        <nav className="mx-6 mt-6 rounded-2xl px-6 py-4 flex items-center justify-between shadow-sm bg-white/80 dark:bg-[#111439]/80 backdrop-blur-xl border border-[#111439]/5 dark:border-white/10 z-50 transition-colors duration-300">
+        <nav className="relative mx-6 mt-6 rounded-2xl px-6 py-4 flex items-center justify-between bg-transparent dark:bg-[#111439]/80 dark:border-white/10 z-50 transition-colors duration-300">
             {/* Left: Logo */}
             <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-[#635BFF]">
-                    <Leaf className="w-5 h-5 text-white fill-white" />
+                <div className="w-8 h-8 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
+                    <img src="/logo.jpeg" alt="SafarLink Logo" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-xl font-bold tracking-tight text-[#111439] dark:text-white">
                     SafarLink
                 </span>
             </div>
 
-            {/* Center: Navigation Links */}
-            <div className="hidden md:flex items-center gap-8">
-                {["HOME", "RIDES", "HISTORY", "SUPPORT"].map((item) => (
-                    <a
-                        key={item}
-                        href="#"
-                        className="text-xs font-bold tracking-wider text-[#111439] dark:text-gray-300 hover:text-[#00D4FF] dark:hover:text-[#00D4FF] transition-colors"
-                    >
-                        {item}
-                    </a>
-                ))}
+            {/* Center: Dock Navigation */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 pointer-events-none hidden lg:flex w-full justify-center">
+                <Dock
+                    items={dockItems}
+                    panelHeight={52}
+                    dockHeight={60}
+                    distance={100}
+                    magnification={60}
+                />
             </div>
 
             {/* Right: Icons & Toggles */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 relative z-10">
                 {/* Women Only Toggle */}
                 <button
                     onClick={() => setIsWomenOnly(!isWomenOnly)}

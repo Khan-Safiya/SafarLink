@@ -11,10 +11,10 @@ export default function SOSButton() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
+        <div className="fixed top-28 right-6 z-[100] flex flex-col-reverse items-end gap-4">
             {/* SOS Menu Panel */}
             {isOpen && (
-                <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl shadow-2xl border border-red-100 dark:border-red-900/40 w-64 animate-in slide-in-from-bottom-5">
+                <div className="bg-white dark:bg-[#1a1a1a] p-4 rounded-2xl shadow-2xl border border-red-100 dark:border-red-900/40 w-64 animate-in slide-in-from-top-5">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-bold text-red-600 dark:text-red-500 flex items-center gap-2">
                             <ShieldAlert className="w-5 h-5" />

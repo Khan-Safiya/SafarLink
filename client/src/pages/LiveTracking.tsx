@@ -267,7 +267,18 @@ export default function LiveTracking() {
         ds.route(
             { origin, destination, travelMode: window.google.maps.TravelMode.DRIVING, provideRouteAlternatives: true },
             (result, status) => {
-                if (status === window.google.maps.DirectionsStatus.OK && result) setDirections(result);
+                if (status === window.google.maps.DirectionsStatus.OK && result) {
+                    let selectedIdx = 0;
+                    if (route?.type === 'cheapest') selectedIdx = 1;
+                    if (route?.type === 'safest' || route?.type === 'eco') selectedIdx = 2;
+
+                    if (result.routes.length > selectedIdx) {
+                        result.routes = [result.routes[selectedIdx]];
+                    } else if (result.routes.length > 0) {
+                        result.routes = [result.routes[0]];
+                    }
+                    setDirections(result);
+                }
             }
         );
     }, [isLoaded, origin, destination]);
@@ -361,7 +372,7 @@ export default function LiveTracking() {
                             )}
                         </div>
                         <h1 className="text-3xl font-bold tracking-tight text-[#111439] dark:text-white">
-                            En Route {destStr ? `to ${destStr}` : 'to Destination'}
+                            On the way {destStr ? `to ${destStr}` : 'to Destination'}
                         </h1>
                         {visibleIncidents.length > 0 && (
                             <p className="text-sm text-orange-500 font-semibold mt-1">
@@ -400,19 +411,6 @@ export default function LiveTracking() {
                             incidents={visibleIncidents}
                         />
 
-                        {/* Driver info overlay */}
-                        <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-black/80 backdrop-blur-md p-4 rounded-xl shadow-lg border border-gray-100 dark:border-white/10 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-xl shadow-inner">👨‍✈️</div>
-                                <div>
-                                    <h3 className="font-bold text-[#111439] dark:text-white">Vikram Singh</h3>
-                                    <p className="text-xs text-[#635BFF] font-semibold dark:text-indigo-400">Toyota Etios • MH 12 AB 1234</p>
-                                </div>
-                            </div>
-                            <Button size="icon" variant="ghost" className="rounded-full bg-indigo-50 text-[#635BFF] hover:bg-indigo-100 hover:text-indigo-700 transition-colors">
-                                <Phone className="w-5 h-5" />
-                            </Button>
-                        </div>
                     </div>
 
                     {/* RIGHT: Panels */}

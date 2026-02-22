@@ -31,9 +31,19 @@ interface RouteCardProps {
 export default function RouteCard({ route, selected, onSelect, originStr, destStr, originCoords, destCoords }: RouteCardProps) {
     const navigate = useNavigate();
 
+    const getBorderColor = () => {
+        switch (route.type) {
+            case 'fastest': return 'border-l-[#004de6]';
+            case 'cheapest': return 'border-l-[#e60000]';
+            case 'safest':
+            case 'eco': return 'border-l-[#00b300]';
+            default: return 'border-l-gray-300';
+        }
+    };
+
     return (
         <Card
-            className={`cursor-pointer transition-all duration-300 border-2 overflow-hidden ${selected ? 'border-[#635BFF] shadow-lg shadow-[#635BFF]/10 bg-[#635BFF]/5' : 'border-transparent hover:border-gray-200 dark:hover:border-white/10 bg-white dark:bg-card'}`}
+            className={`cursor-pointer transition-all duration-300 border-2 border-l-[6px] overflow-hidden ${getBorderColor()} ${selected ? 'border-[#635BFF] shadow-lg shadow-[#635BFF]/10 bg-[#635BFF]/5' : 'border-t-transparent border-r-transparent border-b-transparent hover:border-r-gray-200 hover:border-t-gray-200 hover:border-b-gray-200 dark:hover:border-white/10 bg-white dark:bg-card'}`}
             onClick={() => {
                 onSelect(route);
                 navigate('/route-details', {

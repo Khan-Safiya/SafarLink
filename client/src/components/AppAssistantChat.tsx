@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-    Bot, X, Send, Loader2, MessageSquare, AlertTriangle, Sparkles,
+    Bot, X, Send, Loader2, AlertTriangle, Sparkles,
     MapPin, ArrowRight, Clock, Ruler, IndianRupee, CheckCircle2,
     Ticket, CreditCard, Zap, TrendingDown, Shield, Download,
 } from "lucide-react";
@@ -643,8 +643,8 @@ export default function AppAssistantChat() {
                     >
                         {/* Header */}
                         <div className="flex items-center gap-3 px-4 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-700 text-white shrink-0">
-                            <div className="w-9 h-9 rounded-2xl bg-white/20 flex items-center justify-center">
-                                <Bot className="w-5 h-5" />
+                            <div className="w-9 h-9 rounded-2xl overflow-hidden shadow-sm flex-shrink-0 bg-white/20 p-0.5">
+                                <img src="/logo.jpeg" alt="SafarLink Logo" className="w-full h-full object-cover rounded-[10px]" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="font-bold text-sm leading-tight">SafarLink Assistant</p>
@@ -758,31 +758,38 @@ export default function AppAssistantChat() {
             </AnimatePresence>
 
             {/* ── Floating Action Button ──────────────────────────────────────── */}
-            <motion.button
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.93 }}
-                onClick={() => setOpen(v => !v)}
-                className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 shadow-xl shadow-indigo-500/30 flex items-center justify-center text-white transition-all"
-                aria-label="Open SafarLink Assistant"
-            >
-                {/* Badge when booked */}
-                {phase === "booked" && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 flex items-center justify-center">
-                        <CheckCircle2 className="w-3 h-3 text-white" />
-                    </span>
+            <div className="fixed bottom-5 right-5 z-50 w-16 h-16 flex items-center justify-center">
+                {/* Beating Blue Border */}
+                {!open && (
+                    <div className="absolute inset-0 rounded-full border-4 border-[#00D4FF] animate-ping opacity-75" />
                 )}
-                <AnimatePresence mode="wait">
-                    {open ? (
-                        <motion.div key="close" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.18 }}>
-                            <X className="w-6 h-6" />
-                        </motion.div>
-                    ) : (
-                        <motion.div key="open" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.18 }}>
-                            <MessageSquare className="w-6 h-6" />
-                        </motion.div>
+
+                <motion.button
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.93 }}
+                    onClick={() => setOpen(v => !v)}
+                    className="relative w-full h-full rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 shadow-xl shadow-indigo-500/30 flex items-center justify-center text-white transition-all z-10"
+                    aria-label="Open SafarLink Assistant"
+                >
+                    {/* Badge when booked */}
+                    {phase === "booked" && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 flex items-center justify-center z-20">
+                            <CheckCircle2 className="w-3 h-3 text-white" />
+                        </span>
                     )}
-                </AnimatePresence>
-            </motion.button>
+                    <AnimatePresence mode="wait">
+                        {open ? (
+                            <motion.div key="close" initial={{ opacity: 0, rotate: -90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: 90 }} transition={{ duration: 0.18 }}>
+                                <X className="w-6 h-6" />
+                            </motion.div>
+                        ) : (
+                            <motion.div key="open" className="w-full h-full rounded-full overflow-hidden" initial={{ opacity: 0, rotate: 90 }} animate={{ opacity: 1, rotate: 0 }} exit={{ opacity: 0, rotate: -90 }} transition={{ duration: 0.18 }}>
+                                <img src="/chatbot.jpeg" alt="Chat" className="w-full h-full object-cover object-top rounded-full" />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.button>
+            </div>
         </>
     );
 }

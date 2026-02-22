@@ -1,13 +1,15 @@
-import { Leaf } from "lucide-react";
+
 
 export default function Footer() {
     return (
-        <footer className="bg-[#111439] text-white py-16 border-t border-white/10 dark:border-border">
+        <footer className="bg-[#111439] text-white py-16 border-t border-white/10 dark:border-border mt-auto">
             <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
                 <div className="col-span-1 md:col-span-2">
-                    <div className="flex items-center gap-2 mb-6">
-                        <Leaf className="w-6 h-6 text-[#635BFF]" />
-                        <span className="text-2xl font-bold">SafarLink</span>
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-sm flex-shrink-0 bg-white/10 p-0.5">
+                            <img src="/logo.jpeg" alt="SafarLink Logo" className="w-full h-full object-cover rounded-xl" />
+                        </div>
+                        <span className="text-2xl font-bold tracking-tight">SafarLink</span>
                     </div>
                     <p className="text-white/60 max-w-sm mb-8">
                         Empowering communities with sustainable, safe, and efficient last-mile connectivity solutions.
