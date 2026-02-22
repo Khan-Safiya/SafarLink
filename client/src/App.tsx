@@ -13,6 +13,7 @@ import AiRoutePlanner from "./pages/AiRoutePlanner";
 import BookingPage from "./pages/BookingPage";
 import AppAssistantChat from "./components/AppAssistantChat";
 import SharedAutoPage from "./pages/SharedAutoPage";
+import FeedbackWall from "./pages/FeedbackWall";
 
 function App() {
   return (
@@ -132,6 +133,19 @@ function App() {
                 <>
                   <SignedIn>
                     <BookingPage />
+                  </SignedIn>
+                  <SignedOut>
+                    <RedirectToSignIn />
+                  </SignedOut>
+                </>
+              }
+            />
+            <Route
+              path="/feedback-wall"
+              element={
+                <>
+                  <SignedIn>
+                    <FeedbackWall />
                   </SignedIn>
                   <SignedOut>
                     <RedirectToSignIn />

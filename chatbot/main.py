@@ -10,6 +10,7 @@ from agents.fare import run_fare_agent, FareComparisonOutput
 from agents.buddy import run_buddy
 from agents.app_assistant import run_app_assistant
 from agents.booking_agent import run_booking_agent, BookingRequest, format_whatsapp_ticket
+from agents.weather import get_pune_weather
 from exports.template import generate_pdf
 from bot import router as whatsapp_router, send_whatsapp_message
 
@@ -112,6 +113,12 @@ async def book_journey(body: BookingRequest):
         except Exception:
             pass  # WhatsApp delivery is best-effort
     return result
+
+
+@app.get("/weather")
+async def current_weather():
+    """Get current Pune weather data for monsoon-adaptive routing."""
+    return get_pune_weather()
 
 
 @app.get("/health")

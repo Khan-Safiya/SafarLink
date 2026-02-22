@@ -1,5 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useInView, animate } from "framer-motion";
 import { ArrowRight, Home, Navigation, Users, Search } from "lucide-react";
 import HeroCarousel from "../components/HeroCarousel";
 import MetroHeroScroll from "../components/MetroHeroScroll";
@@ -13,6 +14,26 @@ import imgWomenMode from "../assets/WomenMode.jpeg"
 import imgPooling from "../assets/pooling.jpeg"
 
 import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+
+function AnimatedCounter({ from = 0, to, decimals = 0, suffix = "", duration = 2 }: { from?: number, to: number, decimals?: number, suffix?: string, duration?: number }) {
+    const ref = useRef<HTMLSpanElement>(null);
+    const inView = useInView(ref, { once: true });
+
+    useEffect(() => {
+        if (inView && ref.current) {
+            const controls = animate(from, to, {
+                duration,
+                ease: "easeOut",
+                onUpdate(value) {
+                    if (ref.current) ref.current.textContent = value.toFixed(decimals) + suffix;
+                }
+            });
+            return () => controls.stop();
+        }
+    }, [inView, from, to, duration, suffix, decimals]);
+
+    return <span ref={ref}>{from.toFixed(decimals)}{suffix}</span>;
+}
 
 export default function Landing() {
     const navigate = useNavigate();
@@ -120,33 +141,54 @@ export default function Landing() {
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#00D4FF] rounded-full blur-[120px] opacity-20 mix-blend-screen pointer-events-none"></div>
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <div className="grid md:grid-cols-3 gap-12 text-center">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 text-center">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
+                            className="flex flex-col items-center"
                         >
-                            <div className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">85%</div>
-                            <p className="text-xl font-medium text-white/80">Reduction in Trip Cost</p>
+                            <div className="text-5xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">
+                                <AnimatedCounter to={85} suffix="%" />
+                            </div>
+                            <p className="text-lg md:text-xl font-medium text-white/80 max-w-[160px] md:max-w-none">Reduction in Trip Cost</p>
                         </motion.div>
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.2 }}
+                            className="flex flex-col items-center"
                         >
-                            <div className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">12k+</div>
-                            <p className="text-xl font-medium text-white/80">Active Green Commuters</p>
+                            <div className="text-5xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">
+                                <AnimatedCounter to={12} suffix="k+" />
+                            </div>
+                            <p className="text-lg md:text-xl font-medium text-white/80 max-w-[160px] md:max-w-none">Active Green Commuters</p>
                         </motion.div>
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.4 }}
+                            className="flex flex-col items-center"
                         >
-                            <div className="text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">4.5/5</div>
-                            <p className="text-xl font-medium text-white/80">Average User Rating</p>
+                            <div className="text-5xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">
+                                <AnimatedCounter to={4.5} decimals={1} suffix="/5" />
+                            </div>
+                            <p className="text-lg md:text-xl font-medium text-white/80 max-w-[160px] md:max-w-none">Average User Rating</p>
+                        </motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.6 }}
+                            className="flex flex-col items-center"
+                        >
+                            <div className="text-5xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#00D4FF] to-[#635BFF]">
+                                <AnimatedCounter to={5000} suffix="+" />
+                            </div>
+                            <p className="text-lg md:text-xl font-medium text-white/80 max-w-[160px] md:max-w-none">Journeys Completed</p>
                         </motion.div>
                     </div>
                 </div>

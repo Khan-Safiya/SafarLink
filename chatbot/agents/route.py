@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
+from .weather import get_pune_weather, WeatherData
 
 load_dotenv()
 
@@ -66,6 +67,10 @@ class RouteAgentOutput(BaseModel):
     origin: str = Field(description="Origin location from the query")
     destination: str = Field(description="Destination location from the query")
     transit_options: list[TransitModeRoutes] = Field(description="Routes grouped by transit mode")
+    weather_advisory: Optional[str] = Field(default=None, description="Monsoon/rain advisory for routing, if applicable")
+    is_raining: bool = Field(default=False, description="True if it is currently raining in Pune")
+    rain_probability_pct: float = Field(default=0.0, description="Current rain probability percentage")
+    weather_description: str = Field(default="Clear", description="Human-readable weather description")
 
 
 _TRANSIT_MODES = [
@@ -84,7 +89,7 @@ class _LocationExtract(BaseModel):
 _location_extractor = _llm.with_structured_output(_LocationExtract)
 
 
-def _build_steps(leg: dict, mode: str) -> list[RouteStep]:
+def _build_steps(leg: dict, mode: str, weather: Optional[WeatherData] = None) -> list[RouteStep]:
     steps = []
     for j, step in enumerate(leg["steps"], 1):
         transit_info = None
@@ -98,18 +103,26 @@ def _build_steps(leg: dict, mode: str) -> list[RouteStep]:
                 arrival_stop=t["arrival_stop"]["name"],
                 num_stops=t.get("num_stops", 0),
             )
+        instruction = _strip_html(step.get("html_instructions", ""))
+        # Annotate walking steps with rain warning when it's raining
+        step_mode = step.get("travel_mode", mode.upper())
+        if weather and weather.is_raining and step_mode == "WALKING":
+            dist_m = step.get("distance", {}).get("value", 0)
+            if dist_m > 100:  # Only warn for walks longer than 100m
+                rain_tag = "☔ Rain: exposed walk" if not weather.is_heavy_rain else "⛈️ Heavy rain: seek shelter"
+                instruction = f"{instruction} [{rain_tag}]"
         steps.append(RouteStep(
             step_number=j,
-            instruction=_strip_html(step.get("html_instructions", "")),
+            instruction=instruction,
             distance=step["distance"]["text"],
             duration=step["duration"]["text"],
-            travel_mode=step.get("travel_mode", mode.upper()),
+            travel_mode=step_mode,
             transit_info=transit_info,
         ))
     return steps
 
 
-def _fetch_detailed_routes(origin: str, destination: str, mode: str, transit_mode: Optional[str]) -> list[DetailedRoute]:
+def _fetch_detailed_routes(origin: str, destination: str, mode: str, transit_mode: Optional[str], weather: Optional[WeatherData] = None) -> list[DetailedRoute]:
     try:
         kwargs: dict = {
             "origin": origin,
@@ -132,7 +145,7 @@ def _fetch_detailed_routes(origin: str, destination: str, mode: str, transit_mod
             total_duration=leg["duration"]["text"],
             origin=leg["start_address"],
             destination=leg["end_address"],
-            steps=_build_steps(leg, mode),
+            steps=_build_steps(leg, mode, weather),
         ))
     return routes
 
@@ -141,9 +154,23 @@ def run_route_agent(query: str) -> RouteAgentOutput:
     locs = _location_extractor.invoke(
         f"Extract the origin and destination from this travel query: {query}"
     )
+
+    # ── Fetch real-time Pune weather ─────────────────────────────────────────
+    weather = get_pune_weather()
+
+    # If heavy rain, prioritise Metro (sheltered) over Bus (exposed stops)
+    transit_modes = list(_TRANSIT_MODES)
+    if weather.is_heavy_rain:
+        # Move Metro to first position so it becomes the default suggestion
+        transit_modes = [
+            ("transit", "subway", "Metro / Subway 🌂"),  # sheltered — priority
+            ("transit", "bus",    "Bus"),
+            ("driving", None,     "Auto / Cab"),
+        ]
+
     transit_options = []
-    for maps_mode, transit_mode, label in _TRANSIT_MODES:
-        routes = _fetch_detailed_routes(locs.origin, locs.destination, maps_mode, transit_mode)
+    for maps_mode, transit_mode, label in transit_modes:
+        routes = _fetch_detailed_routes(locs.origin, locs.destination, maps_mode, transit_mode, weather)
         transit_options.append(TransitModeRoutes(
             mode=label,
             available=len(routes) > 0,
@@ -153,4 +180,8 @@ def run_route_agent(query: str) -> RouteAgentOutput:
         origin=locs.origin,
         destination=locs.destination,
         transit_options=transit_options,
+        weather_advisory=weather.monsoon_advisory,
+        is_raining=weather.is_raining,
+        rain_probability_pct=weather.rain_probability_pct,
+        weather_description=weather.weather_description,
     )

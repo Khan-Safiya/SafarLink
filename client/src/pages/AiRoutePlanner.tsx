@@ -28,6 +28,8 @@ import type { Root, TransitOption, Route, FareOption } from "../types/chatbotRou
 import Navbar from "../components/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import WeatherBanner from "../components/WeatherBanner";
+import { useWeather } from "../hooks/useWeather";
 
 // ─── Icon helpers ───────────────────────────────────────────────────────────────
 
@@ -599,6 +601,9 @@ export default function AiRoutePlanner() {
     const [result, setResult] = useState<Root | null>(null);
     const [activeTab, setActiveTab] = useState(0);
 
+    // ── Monsoon-adaptive weather ────────────────────
+    const { weather } = useWeather();
+
     const handleSearch = async () => {
         const q = query.trim();
         if (!q) return;
@@ -646,7 +651,10 @@ export default function AiRoutePlanner() {
                 setIsDriverMode={setIsDriverMode}
             />
 
-            <main className="flex-grow p-4 md:p-8 max-w-4xl mx-auto w-full space-y-8 z-10 relative mt-4">
+            <main className="flex-grow p-4 md:p-8 max-w-4xl mx-auto w-full space-y-6 z-10 relative mt-4">
+                {/* Monsoon Weather Alert Banner */}
+                {weather.is_raining && <WeatherBanner weather={weather} />}
+
                 {/* Page Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

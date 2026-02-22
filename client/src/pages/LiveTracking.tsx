@@ -4,8 +4,7 @@ import MapComponent from "../components/MapComponent";
 import { useJsApiLoader } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Phone, AlertCircle, X, AlertTriangle, RefreshCw, Navigation2 } from "lucide-react";
+import { AlertCircle, X, AlertTriangle, RefreshCw, Navigation2, Star } from "lucide-react";
 import SOSButton from "../components/SOSButton";
 import ShareTrackingWidget from "../components/ShareTrackingWidget";
 import SafetyMonitor from "../components/SafetyMonitor";
@@ -14,6 +13,10 @@ import IncidentReporter, { type Incident } from "../components/IncidentReporter"
 import { useLocation } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
 import { motion, AnimatePresence } from "framer-motion";
+import WeatherBanner from "../components/WeatherBanner";
+import { useWeather } from "../hooks/useWeather";
+import JourneyFeedbackModal from "../components/JourneyFeedbackModal";
+import { useUser } from "@clerk/clerk-react";
 
 const SERVER = "http://localhost:5000";
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
@@ -83,6 +86,12 @@ export default function LiveTracking() {
 
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     const { isLoaded } = useJsApiLoader({ id: 'google-map-script', googleMapsApiKey: apiKey || "", libraries });
+
+    // ── Monsoon-adaptive weather ──────────────────────────────────────────────
+    const { weather } = useWeather();
+    // ── Feedback modal state ──────────────────────────────────────────────────
+    const { user } = useUser();
+    const [showFeedback, setShowFeedback] = useState(false);
 
     const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -285,8 +294,35 @@ export default function LiveTracking() {
 
     const visibleIncidents = activeIncidents.filter(i => !dismissedIds.has(i.id));
 
+    // Derive journey type from route for feedback modal
+    const journeyFeedbackType = (() => {
+        const t = route?.type;
+        if (t === 'pool') return 'pool';
+        if (t === 'auto' || t === 'cab') return 'auto';
+        if (t === 'metro') return 'metro';
+        if (t === 'bus') return 'bus';
+        return 'bus';
+    })();
+
+    const journeyCompleted = route?.steps && currentStepIndex >= route.steps.length;
+
     return (
         <div className={`relative min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isWomenOnly ? 'bg-pink-50 dark:bg-[#831843]' : 'bg-[#F8F8F9] dark:bg-background'}`}>
+            {/* Feedback Modal */}
+            <AnimatePresence>
+                {showFeedback && (
+                    <JourneyFeedbackModal
+                        userId={user?.id ?? 'anonymous'}
+                        journeyId={`${originStr ?? ''}-${destStr ?? ''}-${Date.now()}`}
+                        journeyType={journeyFeedbackType}
+                        origin={originStr ?? ''}
+                        destination={destStr ?? ''}
+                        driverId={journeyFeedbackType === 'auto' || journeyFeedbackType === 'pool' ? 'driver-001' : undefined}
+                        driverName={journeyFeedbackType === 'auto' || journeyFeedbackType === 'pool' ? 'Your Driver' : undefined}
+                        onClose={() => setShowFeedback(false)}
+                    />
+                )}
+            </AnimatePresence>
             {/* Stripe Gradient Blobs */}
             {!isWomenOnly && (
                 <>
@@ -296,6 +332,13 @@ export default function LiveTracking() {
             )}
 
             <Navbar isWomenOnly={isWomenOnly} setIsWomenOnly={setIsWomenOnly} isDriverMode={isDriverMode} setIsDriverMode={setIsDriverMode} />
+
+            {/* Weather / Monsoon Alert Banner */}
+            {weather.is_raining && (
+                <div className="mx-4 md:mx-8 mt-3 z-40 relative">
+                    <WeatherBanner weather={weather} />
+                </div>
+            )}
 
             {/* ── Auto‑reroute alert banner (shown to ALL users on same route) ── */}
             <AnimatePresence>
@@ -419,6 +462,31 @@ export default function LiveTracking() {
 
                         {route?.steps && (
                             <JourneyChecklist steps={route.steps} currentStepIndex={currentStepIndex} />
+                        )}
+
+                        {/* Rate Journey CTA — shown after journey completes */}
+                        {journeyCompleted && !showFeedback && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                                className="bg-gradient-to-r from-[#635BFF] to-[#00D4FF] rounded-2xl p-4 text-white shadow-lg"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                        <Star className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-sm">Journey Complete! 🎉</p>
+                                        <p className="text-white/80 text-xs">Your feedback helps improve routes</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => setShowFeedback(true)}
+                                    className="w-full bg-white text-[#635BFF] font-bold py-2.5 rounded-xl text-sm hover:bg-white/90 transition-all"
+                                >
+                                    ⭐ Rate Your Journey
+                                </button>
+                                <p className="text-[10px] text-white/60 text-center mt-2">Earn rewards at 25, 50, 75 & 100 feedbacks!</p>
+                            </motion.div>
                         )}
 
                         {/* Active incidents panel */}

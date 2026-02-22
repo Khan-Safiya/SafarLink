@@ -1,6 +1,6 @@
 import { UserButton } from "@clerk/clerk-react";
 import ThemeToggle from "./ThemeToggle";
-import { Users, MapPin, Shield, Bot, TrendingUp, Home } from "lucide-react";
+import { Users, Bot, TrendingUp, Home, MessageSquare } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Dock from "./Dock";
 
@@ -19,6 +19,7 @@ export default function Navbar({ isWomenOnly, setIsWomenOnly, isDriverMode, setI
         { icon: <Users size={20} />, label: 'Ride Pooling', onClick: () => navigate('/vehicle-pooling') },
         { icon: <TrendingUp size={20} />, label: 'Shared Auto', onClick: () => navigate('/shared-auto') },
         { icon: <Bot size={20} />, label: 'AI Route Planner', onClick: () => navigate('/ai-planner') },
+        { icon: <MessageSquare size={20} />, label: 'Feedback Wall', onClick: () => navigate('/feedback-wall') },
     ];
 
     return (
